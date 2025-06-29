@@ -11,12 +11,51 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        let splitVC = UISplitViewController(style: .tripleColumn)
+        splitVC.preferredDisplayMode = .oneBesideSecondary
+        splitVC.preferredSplitBehavior = .automatic
+
+        // 1. Primary (사이드바)
+        let sidebarVC = UINavigationController(rootViewController: SidebarViewController())
+
+        // 2. Supplementary (중앙 뷰)
+        let mainVC = ViewController()
+        if let sidebar = sidebarVC.viewControllers.first as? SidebarViewController {
+            sidebar.delegate = mainVC
+            
+            // 수동으로 초기 상태 전달
+            let selectedState = sidebar.states.first ?? nil
+            mainVC.didSelectState(selectedState)
+        }
+
+        // 3. Secondary (오른쪽 디테일 뷰)
+        let detailVC = DetailViewController()
+        detailVC.delegate = mainVC
+        if let delegate = detailVC as? CoverLetterSelectionDelegate {
+            mainVC.tableVC.delegate = delegate
+        } else {
+            assertionFailure("DetailViewController가 CoverLetterSelectionDelegate를 채택하지 않음")
+        }
+        
+        // 각 열에 뷰컨트롤러 할당
+        splitVC.setViewController(sidebarVC, for: .primary)
+        splitVC.setViewController(mainVC, for: .supplementary)
+        splitVC.setViewController(detailVC, for: .secondary)
+        splitVC.minimumSupplementaryColumnWidth = 400
+        splitVC.maximumSupplementaryColumnWidth = 700
+        splitVC.preferredDisplayMode = .automatic
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            splitVC.hide(.secondary)
+        }
+        splitVC.show(.primary)
+        splitVC.hide(.secondary)
+        
+        // 윈도우 설정
+        window = UIWindow(windowScene: scene as! UIWindowScene)
+        window?.rootViewController = splitVC
+        window?.tintColor = .accent
+        window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -52,4 +91,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-
