@@ -10,8 +10,8 @@ import UIKit
 // 기능: 태그 추가 & 삭제 & 이름 변경 & 순서 변경
 // TODO: 삭제&수정에 따른 다른 자소서 항목들 관리
 final class TagEditViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    var options: [String] = []
-    var onUpdate: (([String]) -> Void)?
+    var options: [CoverLetterTag] = []
+    var onUpdate: (([CoverLetterTag]) -> Void)?
     let identifier = "TagCell"
     
     private let tableView = UITableView()
@@ -38,7 +38,7 @@ final class TagEditViewController: UIViewController, UITableViewDelegate, UITabl
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
- 
+    
     private func setupNavigationItems() {
         navigationItem.title = "질문 태그 편집"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneEditing))
@@ -64,13 +64,22 @@ final class TagEditViewController: UIViewController, UITableViewDelegate, UITabl
                 return
             }
             
-            if self.options.contains(newText) {
+            if self.options.contains(where: { $0.name == newText }) {
                 self.showAlert(message: "이미 존재하는 태그입니다.")
                 return
             }
             
-            self.options.append(newText)
-            self.tableView.insertRows(at: [IndexPath(row: self.options.count - 1, section: 0)], with: .automatic)
+            Task {
+                do {
+                    let newTag = try await CoverLetterTagService().insertTag(name: newText)
+                    dump(newTag)
+                    self.options.append(newTag)
+                    self.tableView.insertRows(at: [IndexPath(row: self.options.count - 1, section: 0)], with: .automatic)
+                } catch {
+                    dump(error)
+                    self.showAlert(message: "태그 추가에 실패했어요. 다시 시도해주세요.")
+                }
+            }
         }))
         
         present(alert, animated: true)
@@ -91,7 +100,7 @@ final class TagEditViewController: UIViewController, UITableViewDelegate, UITabl
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath)
-        cell.textLabel?.text = options[indexPath.row]
+        cell.textLabel?.text = options[indexPath.row].name
         return cell
     }
     
@@ -107,16 +116,16 @@ final class TagEditViewController: UIViewController, UITableViewDelegate, UITabl
         options.insert(movedItem, at: destinationIndexPath.row)
     }
     
-    // 삭제
+    // 편집
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let editAction = UIContextualAction(style: .normal, title: "이름 수정") { [weak self] (action, view, success) in
             guard let self = self else { return }
             
-            let currentName = self.options[indexPath.row]
+            let currentTag = self.options[indexPath.row]
             
             let alert = UIAlertController(title: "태그 이름 수정", message: nil, preferredStyle: .alert)
             alert.addTextField { textField in
-                textField.text = currentName
+                textField.text = currentTag.name
             }
             
             alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: { _ in
@@ -130,23 +139,44 @@ final class TagEditViewController: UIViewController, UITableViewDelegate, UITabl
                     return
                 }
                 
-                if self.options.contains(newText), newText != currentName {
+                if self.options.map({ $0.name }).contains(newText), newText != currentTag.name {
                     self.showAlert(message: "이미 존재하는 태그입니다.")
                     success(false)
                     return
                 }
                 
-                self.options[indexPath.row] = newText
-                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-                success(true)
+                Task {
+                    do {
+                        try await CoverLetterTagService().updateTag(id: currentTag.id, newName: newText)
+                        self.options[indexPath.row].name = newText
+                        self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                        success(true)
+                    } catch {
+                        dump(error)
+                        self.showAlert(message: "수정에 실패했어요. 다시 시도해주세요.")
+                        success(false)
+                    }
+                }
             }))
             
             self.present(alert, animated: true)
         }
         let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { [weak self] (action, view, success) in
-            self?.options.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            success(true)
+            guard let self = self else { return }
+            let tag = self.options[indexPath.row]
+            
+            Task {
+                do {
+                    try await CoverLetterTagService().deleteTag(id: tag.id)
+                    self.options.remove(at: indexPath.row)
+                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    success(true)
+                } catch {
+                    dump(error)
+                    self.showAlert(message: "삭제에 실패했어요. 다시 시도해주세요.")
+                    success(false)
+                }
+            }
         }
         
         let config = UISwipeActionsConfiguration(actions: [deleteAction, editAction])

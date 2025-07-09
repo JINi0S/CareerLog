@@ -46,12 +46,13 @@ class DetailSidebarView: UIView {
     
     func configure(with item: CoverLetter?) {
         segmentControl.selectedSegmentIndex = CoverLetterState.allCases.firstIndex(of: item?.state ?? .unwrite) ?? 0
-        companyTextField.configure(text: item?.company.name ?? "")
+        companyTextField.configure(text: item?.company ?? "")
         jobTextField.configure(text: item?.jobPosition ?? "")
         memoTextField.configure(text: item?.memo ?? "")
         includesWhitespaceCheckBox.isChecked = item?.includesWhitespace ?? true
         dueDatePickerToggleView.configure(initialDate: item?.dueDate, buttonTitle: "마감일 설정")
     }
+    
     private let dummySpacerView = UIView()
 
     private func setupLayout() {

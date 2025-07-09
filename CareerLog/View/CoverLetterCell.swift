@@ -8,13 +8,12 @@
 
 import UIKit
 
-class CoverLetterCell: UITableViewCell {
+class CoverLetterCell: UITableViewCell, UIContextMenuInteractionDelegate {
     
     static let reuseIdentifier = "CoverLetterCell"
     
-    // 셀 안에 들어갈 UI 요소 정의
     private let containerView = UIView()
-    let stateImage = FixedImageContainerView(
+    let stateIconView = FixedImageContainerView(
         imageName: "checkmark.circle.fill",
         tintColor: .systemBlue,
         pointSize: 16,
@@ -22,7 +21,6 @@ class CoverLetterCell: UITableViewCell {
     )
     private let titleLabel = UILabel()
     
-    private let subtitleStackView = UIStackView()
     private let companyLabel = UILabel()
     private let jobPositionLabel = UILabel()
     private let separatorLabel = UILabel()
@@ -31,11 +29,12 @@ class CoverLetterCell: UITableViewCell {
     private let dueDateLabel = UILabel()
     private let bookmarkButton = UIButton()
     
-    private var labelHStack = UIStackView()
-    private var vStack = UIStackView()
-    private var hStack = UIStackView()
+    private var mainContentHStack = UIStackView()
+    private var infoVStackView = UIStackView()
+    private var subtitleHStackView = UIStackView()
 
     var onTapBookmarkButton: (() -> Void)?
+    var onDeleteCoverLetter: (() -> ())?
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -50,9 +49,31 @@ class CoverLetterCell: UITableViewCell {
         setupUI()
         backgroundColor = .clear
         selectionStyle = .none
+      
+        let interaction = UIContextMenuInteraction(delegate: self)
+        containerView.addInteraction(interaction)
+    }
+    
+    func configure(with item: CoverLetter) {
+        updateStateImage(from: item.state)
+        titleLabel.text = item.title
+        companyLabel.text = item.company
+        jobPositionLabel.text = item.jobPosition
+        separatorLabel.isHidden = item.jobPosition?.isEmpty ?? true || item.company.isEmpty
+        let tags = item.contents
+            .flatMap { $0.tag }
+            .map { $0.name }
+        tagListView.setTags(tags)
+        dueDateLabel.text = item.dueDate.map { dateFormatter.string(from: $0) } ?? ""
+        updateBookmarkButtonImage(item.isBookmarked)
     }
     
     private func setupUI() {
+        titleLabel.numberOfLines = 0
+        companyLabel.numberOfLines = 0
+        jobPositionLabel.numberOfLines = 0
+        dueDateLabel.numberOfLines = 0
+        
         setupContainerView()
         setupLabels()
         setupStacks()
@@ -101,76 +122,76 @@ class CoverLetterCell: UITableViewCell {
     
     private func setupStacks() {
         [companyLabel, separatorLabel, jobPositionLabel].forEach {
-            labelHStack.addArrangedSubview($0)
+            subtitleHStackView.addArrangedSubview($0)
         }
-        labelHStack.axis = .horizontal
-        labelHStack.spacing = 6
-        labelHStack.alignment = .center
+        subtitleHStackView.axis = .horizontal
+        subtitleHStackView.spacing = 6
+        subtitleHStackView.alignment = .center
         
+        [titleLabel, subtitleHStackView, tagListView, dueDateLabel].forEach {
+            infoVStackView.addArrangedSubview($0)
+        }
+        infoVStackView.axis = .vertical
+        infoVStackView.spacing = 8
+        infoVStackView.alignment = .leading
+        infoVStackView.distribution = .fill
+        infoVStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        [stateIconView, infoVStackView, bookmarkButton].forEach {
+            mainContentHStack.addArrangedSubview($0)
+        }
+        mainContentHStack.axis = .horizontal
+        mainContentHStack.spacing = 16
+        mainContentHStack.alignment = .leading
+        mainContentHStack.distribution = .fill
+        mainContentHStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        containerView.addSubview(mainContentHStack)
+    }
+    
+    private func setupButtons() {
+        bookmarkButton.addTarget(self, action: #selector(bookmarkButtonTapped), for: .touchUpInside)
+        bookmarkButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            bookmarkButton.widthAnchor.constraint(equalToConstant: 24),
+            bookmarkButton.heightAnchor.constraint(equalToConstant: 24)
+        ])
+    }
+    
+    private func setupConstraints() {
+        let padding: CGFloat = 16.0
         [companyLabel, separatorLabel, jobPositionLabel].forEach {
             $0.setContentHuggingPriority(.required, for: .horizontal)
             $0.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
         
-        [titleLabel, labelHStack, tagListView, dueDateLabel].forEach {
-            vStack.addArrangedSubview($0)
-        }
-        vStack.axis = .vertical
-        vStack.spacing = 8
-        vStack.alignment = .leading
-        vStack.distribution = .fill
-        vStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        vStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        vStack.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-                
-        [stateImage, vStack, bookmarkButton].forEach {
-            hStack.addArrangedSubview($0)
-        }
-        hStack.axis = .horizontal
-        hStack.spacing = 16
-        hStack.alignment = .leading
-        hStack.distribution = .fill
-        hStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        containerView.addSubview(hStack)
-    }
-    
-    private func setupButtons() {
-        bookmarkButton.addTarget(self, action: #selector(bookmarkButtonTapped), for: .touchUpInside)
-    }
-    
-    private func setupConstraints() {
-        let padding: CGFloat = 20.0
+        tagListView.setContentHuggingPriority(.required, for: .vertical)
+        tagListView.setContentCompressionResistancePriority(.required, for: .vertical)
+           
         NSLayoutConstraint.activate([
-            hStack.topAnchor.constraint(equalTo: containerView.topAnchor, constant: padding),
-            hStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
-            hStack.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -padding),
-            hStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
+            tagListView.leadingAnchor.constraint(equalTo: infoVStackView.leadingAnchor),
+            tagListView.trailingAnchor.constraint(equalTo: infoVStackView.trailingAnchor),
+       
+            mainContentHStack.topAnchor.constraint(equalTo: containerView.topAnchor, constant: padding),
+            mainContentHStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: padding),
+            mainContentHStack.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -padding),
+            mainContentHStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -padding),
         ])
     }
     
     // 셀 재사용 시 상태 초기화 고려
     override func prepareForReuse() {
         super.prepareForReuse()
+        titleLabel.text = nil
+        companyLabel.text = nil
+        jobPositionLabel.text = nil
+        dueDateLabel.text = nil
         updateBookmarkButtonImage(false)
         tagListView.setTags([])
     }
     
-    func configure(with item: CoverLetter) {
-        updateStateImage(from: item.state)
-        titleLabel.text = item.title
-        companyLabel.text = item.company.name
-        jobPositionLabel.text = item.jobPosition
-        separatorLabel.isHidden = ((item.jobPosition?.isEmpty) != nil)
-        let tags = item.contents.compactMap { $0.tag }
-        tagListView.setTags(tags)
-        dueDateLabel.text = item.dueDate.map { dateFormatter.string(from: $0) } ?? ""
-        updateBookmarkButtonImage(item.isBookmarked)
-    }
-    
     private func updateStateImage(from state: CoverLetterState) {
-        stateImage.update(
+        stateIconView.update(
             imageName: state.imageName,
             tintColor: state.tintColor,
             pointSize: 16
@@ -186,58 +207,39 @@ class CoverLetterCell: UITableViewCell {
         self.onTapBookmarkButton?()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+
+        UIView.animate(withDuration: 0.2) {
+            self.containerView.layer.borderWidth = selected ? 1 : 0
+            self.containerView.layer.borderColor = selected ? UIColor.accent.cgColor : UIColor.clear.cgColor
+        }
     }
-}
-
-
-final class FixedImageContainerView: UIView {
     
-    private let imageView: UIImageView
-    private let fixedSize: CGSize
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        if traitCollection.userInterfaceIdiom != .pad {
+            updateHighlightAppearance(true)
+        }
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let delete = UIAction(title: "삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+                self?.onDeleteCoverLetter?()
+            }
+            
+            return UIMenu(title: "", children: [delete])
+        }
+    }
     
-    init(
-        imageName: String,
-        tintColor: UIColor,
-        pointSize: CGFloat = 15,
-        fixedSize: CGSize = CGSize(width: 36, height: 36),
-        backgroundColor: UIColor? = nil
-    ) {
-        self.fixedSize = fixedSize
-        self.imageView = UIImageView()
-
-        super.init(frame: .zero)
-        
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.widthAnchor.constraint(equalToConstant: fixedSize.width).isActive = true
-        self.heightAnchor.constraint(equalToConstant: fixedSize.height).isActive = true
-        
-        self.backgroundColor = backgroundColor ?? tintColor.withAlphaComponent(0.2)
-        self.layer.cornerRadius = 8
-        self.clipsToBounds = true
-        
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .center
-        imageView.tintColor = tintColor
-        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: .medium)
-        imageView.image = UIImage(systemName: imageName, withConfiguration: config)
-        
-        addSubview(imageView)
-        
-        NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
-        ])
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willEndFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
+        updateHighlightAppearance(false)
     }
-
-    func update(imageName: String, tintColor: UIColor, pointSize: CGFloat = 15) {
-        let config = UIImage.SymbolConfiguration(pointSize: pointSize, weight: .semibold)
-        imageView.image = UIImage(systemName: imageName, withConfiguration: config)
-        imageView.tintColor = tintColor
-        self.backgroundColor = tintColor.withAlphaComponent(0.2)
+  
+    func updateHighlightAppearance(_ isHighlight: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.containerView.layer.borderWidth = isHighlight ? 1 : 0
+            self.containerView.layer.borderColor = isHighlight ? UIColor.systemPink.cgColor : UIColor.clear.cgColor
+        }
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

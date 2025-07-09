@@ -8,23 +8,32 @@
 import UIKit
 
 final class QuestionFooterView: UICollectionReusableView {
+    // MARK: - Constants
     private enum Constants {
         static let addAnswerTitle = "답변 추가"
+        static let charLimitPlaceholder = "제한 글자 수"
         static let charLimitSuffix = "자 제한"
         static let tagSelectTitle = "질문 태그 선택"
-        static let manage = "관리"
         static let editTag = "태그 편집"
+        static let addTag = "태그 추가"
+        static let manage = "관리"
     }
     
+    // MARK: - Static Properties
     static let reuseIdentifier = "QuestionFooterView"
     
+    // MARK: - Static Properties
     var onTapAddButton: (() -> Void)?
     var onTapEditTag: (() -> Void)?
     var onTapAddTag: (() -> Void)?
-    var onTagChanged: ((String) -> Void)?
+    var onTagChanged: ((Int, Bool) -> Void)?
+    var onCharLimitChanged: ((Int?) -> Void)?
     
-    private var tagOptions: [String] = []
+    // MARK: - Internal Properties
+    private var tagOptions: [CoverLetterTag] = []
+    private var selectedTagIds: Set<Int> = [] // 선택된 태그 id
 
+    // MARK: - Internal Properties
     private let addAnswerButton: UIButton = {
         var config = UIButton.Configuration.plain()
         config.title = Constants.addAnswerTitle
@@ -49,7 +58,7 @@ final class QuestionFooterView: UICollectionReusableView {
     
     private let countLimitTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "글자수 제한"
+        textField.placeholder = Constants.charLimitPlaceholder
         textField.tintColor = .accent
         textField.font = .systemFont(ofSize: 13, weight: .semibold)
         textField.keyboardType = .numberPad
@@ -57,7 +66,6 @@ final class QuestionFooterView: UICollectionReusableView {
         return textField
     }()
     
-    // TODO: 초기값 설정
     private let tagButton: UIButton = {
         var config = UIButton.Configuration.plain()
         config.imagePadding = 6
@@ -68,23 +76,35 @@ final class QuestionFooterView: UICollectionReusableView {
             newAttributes.font = .systemFont(ofSize: 13, weight: .semibold)
             return newAttributes
         }
+        config.baseForegroundColor = .accent
         
         let button = UIButton(configuration: config)
         button.contentHorizontalAlignment = .trailing
         button.setTitle(Constants.tagSelectTitle, for: .normal)
-        button.setTitleColor(.accent, for: .normal)
+        button.showsMenuAsPrimaryAction = true
+        
+        button.configurationUpdateHandler = { button in
+            var config = button.configuration
+            config?.baseForegroundColor =  button.title(for: .normal) == Constants.tagSelectTitle ? .accent : .label
+            config?.baseBackgroundColor = .clear
+            button.configuration = config
+        }
+        
         let image = UIImage(
             systemName: "chevron.up.chevron.down",
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
         )
         button.setImage(image, for: .normal)
         
-        button.showsMenuAsPrimaryAction = true
         return button
     }()
-   
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupViews()
+    }
+    
+    private func setupViews() {
         addAnswerButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
         countLimitTextField.addTarget(self, action: #selector(onEndEditingCountLimit), for: .editingDidEnd)
         countLimitTextField.addTarget(self, action: #selector(onBeginCountLimit), for: .editingDidBegin)
@@ -98,10 +118,10 @@ final class QuestionFooterView: UICollectionReusableView {
         limitHStack.spacing = 8
         limitHStack.distribution = .fill
         limitHStack.alignment = .center
-       
         limitHStack.translatesAutoresizingMaskIntoConstraints = false
+        
         addSubview(limitHStack)
-
+        
         NSLayoutConstraint.activate([
             limitHStack.topAnchor.constraint(equalTo: topAnchor, constant: 12),
             limitHStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -32),
@@ -110,70 +130,105 @@ final class QuestionFooterView: UICollectionReusableView {
         ])
     }
     
-    func configure(with content: CoverLetterContent, tagOptions: [String]) {
+    // MARK: - Configure
+    func configure(with content: CoverLetterContent, tagOptions: [CoverLetterTag]) {
         self.tagOptions = tagOptions
-        if content.tag != "" {
-            tagButton.setTitle(content.tag, for: .normal)
-            tagButton.setTitleColor(.label, for: .normal)
-            tagButton.tintColor = .label
-        }
-        
-        countLimitTextField.text = "\(content.characterLimit)자 제한"
+        self.selectedTagIds = Set(content.tag.map({ $0.id }))
+        configureCountLimit(with: content.characterLimit)
         updateMenu()
+        print("Configure QuestFooterView with", tagOptions)
     }
     
-    @objc private func didTapAddButton() {
-        onTapAddButton?()
+    private func configureCountLimit(with characterLimit: Int?) {
+        if let characterLimit {
+            countLimitTextField.text = "\(characterLimit)\(Constants.charLimitSuffix)"
+            countLimitTextField.textColor = .label
+        } else {
+            countLimitTextField.text = Constants.charLimitPlaceholder
+            countLimitTextField.textColor = .accent
+        }
     }
     
     private func updateMenu() {
-        var actions: [UIAction] = []
-        for option in tagOptions {
-            let isSelected = (option == tagButton.title(for: .normal))
-            let action = UIAction(
-                title: option,
+        let tagActions = tagOptions.map { tag in
+            let isSelected = selectedTagIds.contains(tag.id)
+            return UIAction(
+                title: tag.name,
                 state: isSelected ? .on : .off,
                 handler: { [weak self] _ in
-                    self?.tagButton.setTitle(option, for: .normal)
-                    self?.tagButton.setTitleColor(.label, for: .normal)
-                    self?.tagButton.tintColor = .label
-                    self?.onTagChanged?(option) // ✅ 여기서 변경 감지
+                    guard let self else { return }
+                    
+                    if isSelected {
+                        selectedTagIds.remove(tag.id)
+                        onTagChanged?(tag.id, false)
+                    } else {
+                        selectedTagIds.insert(tag.id)
+                        onTagChanged?(tag.id, true)
+                    }
+                    
+                    updateMenu() // 갱신 필요
                 }
             )
-            actions.append(action)
         }
-
-        let tagMenu =  UIMenu(title: Constants.tagSelectTitle, options: .displayInline, preferredElementSize: .large, children: actions)
-        let manageMenu = UIMenu(title: Constants.manage, options: .displayInline, preferredElementSize: .large, children:  makeManageTagActions())
+        
+        let tagMenu = UIMenu(
+            title: Constants.tagSelectTitle,
+            options: [.displayInline, /*.singleSelection*/],
+            preferredElementSize: .large,
+            children: tagActions
+        )
+        
+        let manageMenu = UIMenu(title: Constants.manage, children: makeManageTagActions())
         tagButton.menu = UIMenu(title: "", children: [tagMenu, manageMenu])
+        
+        updateTagButtonTitle()
     }
+    
+    private func updateTagButtonTitle() {
+        let selectedNames = tagOptions
+            .filter { selectedTagIds.contains($0.id) }
+            .map { $0.name }
+            .joined(separator: ", ")
+        
+        let title = selectedNames.isEmpty ? Constants.tagSelectTitle : selectedNames
+        tagButton.setTitle(title, for: .normal)
+        tagButton.setNeedsUpdateConfiguration()
+    }
+    
     
     private func makeManageTagActions() -> [UIAction] {
         let editAction = UIAction(title: Constants.editTag, image: UIImage(systemName: "slider.horizontal.3"), attributes: [], handler: { [weak self] _ in
             guard let self else { return }
             self.onTapEditTag?()
         })
-        let addAction = UIAction(title: "태그 추가", image: UIImage(systemName: "plus"), handler: { [weak self] _ in
+        let addAction = UIAction(title: Constants.addTag, image: UIImage(systemName: "plus"), handler: { [weak self] _ in
             self?.onTapAddTag?()
         })
         let items = [editAction, addAction]
         return items
     }
-
+    
+    // MARK: - Action Handlers
+    @objc private func didTapAddButton() {
+        onTapAddButton?()
+    }
+    
     @objc private func onBeginCountLimit(_ sender: UITextField) {
-        let numberText = extractNumber(from: countLimitTextField.text)
-        countLimitTextField.text = numberText
+        countLimitTextField.text = extractNumber(from: countLimitTextField.text)
     }
     
     @objc private func onEndEditingCountLimit(_ sender: UITextField) {
         let numberText = extractNumber(from: countLimitTextField.text)
-        countLimitTextField.text = numberText.isEmpty ? "" : "\(numberText)자 제한"
+        countLimitTextField.textColor = numberText.isEmpty ? .accent : .label
+        countLimitTextField.text = numberText.isEmpty ? Constants.charLimitPlaceholder : "\(numberText)\(Constants.charLimitSuffix)"
+        self.onCharLimitChanged?(Int(numberText))
     }
     
+    // MARK: - Utility
     private func extractNumber(from text: String?) -> String {
         return text?.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression) ?? ""
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

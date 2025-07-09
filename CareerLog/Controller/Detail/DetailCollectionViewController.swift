@@ -11,8 +11,12 @@ import UIKit
 final class DetailCollectionViewController: UICollectionViewController {
     
     var item: CoverLetter?
-    var onItemChanged: ((CoverLetter) -> Void)?
-    var tagOptions =  ["성장배경", "강약점", "강점", "높은목표설정"] // TODO: 저장 및 불러오기 기능
+    var onCoverLetterChanged: ((CoverLetter) -> Void)? // TODO: 필요한지 재확인하기
+    var onContentChange: ((CoverLetterContent) -> ())?
+    var onDeleteContent: ((_ coverLetterId: Int, _ contentId: Int) -> ())?
+    var onTagChanged: ((_ tagId: Int, _ contentId: Int, _ isSelected: Bool) -> ())?
+    var tagOptions: [CoverLetterTag] = []
+    
     private let toggleButton = UIButton(type: .system)
 
     private var numberOfColumns = 1 {
@@ -57,7 +61,7 @@ final class DetailCollectionViewController: UICollectionViewController {
     func reload(with item: CoverLetter) {
         self.item = item
         collectionView.reloadData()
-        onItemChanged?(item)
+        onCoverLetterChanged?(item)
     }
  
     private func setupToggleButton() {
@@ -84,6 +88,10 @@ final class DetailCollectionViewController: UICollectionViewController {
         numberOfColumns = (numberOfColumns == 1) ? 2 : 1
     }
     
+    func setTagOptions(_ options: [CoverLetterTag]) {
+        self.tagOptions = options
+    }
+    
     private func presentTagEditView() {
         let editVC = TagEditViewController()
         editVC.options = self.tagOptions
@@ -105,11 +113,31 @@ final class DetailCollectionViewController: UICollectionViewController {
                   let newOption = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespaces),
                   !newOption.isEmpty else { return }
             
-            if !tagOptions.contains(newOption) {
-                tagOptions.append(newOption)
-                self.collectionView?.reloadData()
+            // 중복 이름 체크
+            if !tagOptions.contains(where: { $0.name == newOption }) {
+                Task {
+                    do {
+                        let newTag = try await CoverLetterTagService().insertTag(name: newOption)
+                        print("Add in option",newTag)
+                        self.tagOptions.append(newTag)
+                    } catch {
+                        dump(error)
+                        self.showAlert(message: "태그 추가에 실패했어요. 다시 시도해주세요.")
+                    }
+                }
+            } else {
+                // 이미 존재하면 사용자에게 안내할 수도 있음
+                let duplicateAlert = UIAlertController(title: "중복 태그", message: "이미 존재하는 태그입니다.", preferredStyle: .alert)
+                duplicateAlert.addAction(UIAlertAction(title: "확인", style: .default))
+                self.present(duplicateAlert, animated: true)
             }
         }))
+        present(alert, animated: true)
+    }
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
     
@@ -134,11 +162,11 @@ final class DetailCollectionViewController: UICollectionViewController {
         
         section.boundarySupplementaryItems = [
             NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100)),
+                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(40)),
                 elementKind: UICollectionView.elementKindSectionHeader,
                 alignment: .top),
             NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(36)),
+                layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(44)),
                 elementKind: UICollectionView.elementKindSectionFooter,
                 alignment: .bottom)
         ]
@@ -163,11 +191,15 @@ extension DetailCollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AnswerCell.reuseIdentifier, for: indexPath) as! AnswerCell
-        if let answer = item?.contents[indexPath.section].answers[indexPath.item] {
+        if let content = item?.contents[indexPath.section] {
+            let answer = content.answers[indexPath.item]
             cell.configure(with: answer)
         }
         cell.onTextChanged = { [weak self] newText in
             self?.item?.contents[indexPath.section].answers[indexPath.item] = newText
+            if let content = self?.item?.contents[indexPath.section] {
+                self?.onContentChange?(content)
+            }
         }
         
         cell.onCopy = { text in
@@ -177,6 +209,9 @@ extension DetailCollectionViewController {
         cell.onDelete = { [weak self] in
             self?.item?.contents[indexPath.section].answers.remove(at: indexPath.item)
             self?.collectionView?.reloadData()
+            if let content = self?.item?.contents[indexPath.section] {
+                self?.onContentChange?(content)
+            }
         }
         
         return cell
@@ -191,11 +226,17 @@ extension DetailCollectionViewController {
             header.configure(with: content)
             header.onChangeTitle = { [weak self] question in
                 self?.item?.contents[indexPath.section].question = question
+                if let content = self?.item?.contents[indexPath.section] {
+                    self?.onContentChange?(content)
+                }
             }
             header.onDelete = { [weak self] in
                 if self?.item?.contents.count ?? 0 > 1 {
-                    self?.item?.contents.remove(at: indexPath.section)
-                    self?.collectionView?.reloadData()
+                    if let item = self?.item {
+                        self?.onDeleteContent?(item.id, item.contents[indexPath.section].id)
+                        self?.item?.contents.remove(at: indexPath.section)
+                        self?.collectionView?.reloadData()
+                    }
                 }
                 // TODO: 1개인 경우는 삭제 안된다고 알럿 띄우기 or 1개인 경우에는 버튼 없애기
             }
@@ -226,9 +267,30 @@ extension DetailCollectionViewController {
             footer.onTapAddTag = { [weak self] in
                 self?.presentAddOptionAlert()
             }
-            footer.onTagChanged = { [weak self] selectedTag in
-                self?.item?.contents[indexPath.section].tag = selectedTag
-                self?.onItemChanged?(self!.item!)
+            footer.onTagChanged = { [weak self] tagId, isSelected in
+                guard let self = self else { return }
+                guard var content = self.item?.contents[indexPath.section] else { return }
+
+                if let tagOption = self.tagOptions.first(where: { $0.id == tagId }) {
+                    if isSelected {
+                        // 선택된 태그가 없으면 추가
+                        if !content.tag.contains(tagOption) {
+                            content.tag.append(tagOption)
+                        }
+                    } else {
+                        // 선택 해제 시 삭제
+                        content.tag.removeAll { $0.id == tagOption.id }
+                    }
+                    self.item?.contents[indexPath.section] = content
+                    self.onContentChange?(content)
+                    self.onTagChanged?(tagId, content.id, isSelected)
+                }
+            }
+            
+            // TODO: 변경사항만 서버에 업데이트하도록 수정
+            footer.onCharLimitChanged = { [weak self] charLimit in
+                self?.item?.contents[indexPath.section].characterLimit = charLimit
+                self?.onContentChange?(self!.item!.contents[indexPath.section])
             }
             return footer
         }

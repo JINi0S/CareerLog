@@ -30,15 +30,6 @@ final class QuestionHeaderView: UICollectionReusableView, UITextViewDelegate {
         return button
     }()
     
-//    private let deleteButton: UIButton = {
-//        let button = UIButton()
-//        button.tintColor = .systemRed
-//        
-//        //        button.setImage(.init(systemName: "trash"), for: .normal)
-//        button.showsMenuAsPrimaryAction = true
-//        return button
-//    }()
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         textView.delegate = self
@@ -60,10 +51,10 @@ final class QuestionHeaderView: UICollectionReusableView, UITextViewDelegate {
         }
         
         NSLayoutConstraint.activate([
-            questionHStack.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            questionHStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            questionHStack.topAnchor.constraint(equalTo: topAnchor),
+            questionHStack.bottomAnchor.constraint(equalTo: bottomAnchor),
             questionHStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            questionHStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
+            questionHStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2),
         ])
     }
     
@@ -93,8 +84,9 @@ final class QuestionHeaderView: UICollectionReusableView, UITextViewDelegate {
         
         let alert = UIAlertController(title: "자기소개서 삭제", message: "정말 삭제하시겠습니까?\n답변도 같이 삭제됩니다.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { _ in
-            self.onDelete?()
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
+            print(("DELETE"))
+            self?.onDelete?()
         })
         
         parentVC.present(alert, animated: true)

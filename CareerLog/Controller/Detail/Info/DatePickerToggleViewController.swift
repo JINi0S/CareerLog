@@ -114,7 +114,6 @@ class DatePickerToggleView: UIView {
     // MARK: - Style Update
     private func updateToggleButtonStyle(isSelected: Bool, title: String) {
         let isHighlight = isSelected || (title == defaultTitle)
-        print(title)
         var config = toggleButton.configuration ?? UIButton.Configuration.plain()
         var attributed = AttributedString(title)
         attributed.font = UIFont.systemFont(ofSize: 15, weight: .medium)

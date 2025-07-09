@@ -7,12 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		600AF2A82E1AF6D400A83AEB /* SidebarFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2A72E1AF6D400A83AEB /* SidebarFilter.swift */; };
+		600AF2AA2E1AF70500A83AEB /* CoverLetterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2A92E1AF70500A83AEB /* CoverLetterState.swift */; };
+		600AF2AC2E1AF71800A83AEB /* CoverLetterResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2AB2E1AF71800A83AEB /* CoverLetterResponse.swift */; };
+		600AF2AE2E1AF72400A83AEB /* CoverLetterContentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2AD2E1AF72400A83AEB /* CoverLetterContentResponse.swift */; };
+		600AF2B32E1C331700A83AEB /* FixedImageContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2B22E1C331700A83AEB /* FixedImageContainerView.swift */; };
+		600AF2B62E1E5C3800A83AEB /* CoverLetterTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2B52E1E5C3800A83AEB /* CoverLetterTag.swift */; };
+		600AF2B82E1E64CB00A83AEB /* CoverLetterTagService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2B72E1E64CB00A83AEB /* CoverLetterTagService.swift */; };
+		600AF2BA2E1E64F100A83AEB /* SupabaseClientProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2B92E1E64F100A83AEB /* SupabaseClientProvider.swift */; };
+		600AF2BC2E1E64F800A83AEB /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2BB2E1E64F800A83AEB /* SupabaseService.swift */; };
+		600AF2BE2E1E654700A83AEB /* SupabaseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2BD2E1E654700A83AEB /* SupabaseError.swift */; };
 		6034C37A2DE35E8C002EE37A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6034C36F2DE35E8C002EE37A /* Assets.xcassets */; };
 		6034C37C2DE35E8C002EE37A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6034C3732DE35E8C002EE37A /* LaunchScreen.storyboard */; };
 		6034C37E2DE35E8C002EE37A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C36E2DE35E8C002EE37A /* AppDelegate.swift */; };
 		6034C37F2DE35E8C002EE37A /* CareerLog.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3702DE35E8C002EE37A /* CareerLog.xcdatamodeld */; };
 		6034C3802DE35E8C002EE37A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3762DE35E8C002EE37A /* SceneDelegate.swift */; };
-		6034C3812DE35E8C002EE37A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3772DE35E8C002EE37A /* ViewController.swift */; };
+		6034C3812DE35E8C002EE37A /* CoverLetterListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3772DE35E8C002EE37A /* CoverLetterListViewController.swift */; };
 		6034C3842DE35E8E002EE37A /* CareerLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3822DE35E8E002EE37A /* CareerLogTests.swift */; };
 		6034C3882DE35E91002EE37A /* CareerLogUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3852DE35E91002EE37A /* CareerLogUITests.swift */; };
 		6034C3892DE35E91002EE37A /* CareerLogUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C3862DE35E91002EE37A /* CareerLogUITestsLaunchTests.swift */; };
@@ -22,6 +32,18 @@
 		604A494A2DECE03B00082744 /* QuestionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604A49492DECE03B00082744 /* QuestionHeaderView.swift */; };
 		604B0BFA2E0DCF13004EC9A8 /* QuestionFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0BF92E0DCF13004EC9A8 /* QuestionFooterView.swift */; };
 		604B0BFC2E0EAD57004EC9A8 /* TagEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0BFB2E0EAD57004EC9A8 /* TagEditViewController.swift */; };
+		604B0BFF2E13AD1A004EC9A8 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 604B0BFE2E13AD1A004EC9A8 /* Auth */; };
+		604B0C012E13AD1A004EC9A8 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 604B0C002E13AD1A004EC9A8 /* PostgREST */; };
+		604B0C032E13AD1A004EC9A8 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 604B0C022E13AD1A004EC9A8 /* Storage */; };
+		604B0C052E13AD1A004EC9A8 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 604B0C042E13AD1A004EC9A8 /* Supabase */; };
+		604B0C082E142342004EC9A8 /* CoverLetterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C072E142342004EC9A8 /* CoverLetterService.swift */; };
+		604B0C0A2E15242D004EC9A8 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C092E152428004EC9A8 /* AuthService.swift */; };
+		604B0C0C2E15335F004EC9A8 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C0B2E15335F004EC9A8 /* LoginViewController.swift */; };
+		604B0C0F2E1817F8004EC9A8 /* CoverLetterInsertRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C0E2E1817F8004EC9A8 /* CoverLetterInsertRequest.swift */; };
+		604B0C112E181814004EC9A8 /* CoverLetterContentInsertRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C102E181814004EC9A8 /* CoverLetterContentInsertRequest.swift */; };
+		604B0C132E18181B004EC9A8 /* CoverLetterContentUpdateRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C122E18181B004EC9A8 /* CoverLetterContentUpdateRequest.swift */; };
+		604B0C152E181821004EC9A8 /* CoverLetterUpdateRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C142E181821004EC9A8 /* CoverLetterUpdateRequest.swift */; };
+		604B0C172E181E13004EC9A8 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604B0C162E181E13004EC9A8 /* Debouncer.swift */; };
 		609169DC2DFC1BFB00A34D4F /* AnswerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609169DB2DFC1BFB00A34D4F /* AnswerCell.swift */; };
 		609169E62E04231300A34D4F /* TagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609169E52E04231300A34D4F /* TagCell.swift */; };
 		609169E82E04751800A34D4F /* TagListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 609169E72E04751800A34D4F /* TagListView.swift */; };
@@ -51,6 +73,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		600AF2A72E1AF6D400A83AEB /* SidebarFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarFilter.swift; sourceTree = "<group>"; };
+		600AF2A92E1AF70500A83AEB /* CoverLetterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterState.swift; sourceTree = "<group>"; };
+		600AF2AB2E1AF71800A83AEB /* CoverLetterResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterResponse.swift; sourceTree = "<group>"; };
+		600AF2AD2E1AF72400A83AEB /* CoverLetterContentResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterContentResponse.swift; sourceTree = "<group>"; };
+		600AF2B22E1C331700A83AEB /* FixedImageContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedImageContainerView.swift; sourceTree = "<group>"; };
+		600AF2B42E1D586300A83AEB /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		600AF2B52E1E5C3800A83AEB /* CoverLetterTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterTag.swift; sourceTree = "<group>"; };
+		600AF2B72E1E64CB00A83AEB /* CoverLetterTagService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterTagService.swift; sourceTree = "<group>"; };
+		600AF2B92E1E64F100A83AEB /* SupabaseClientProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClientProvider.swift; sourceTree = "<group>"; };
+		600AF2BB2E1E64F800A83AEB /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		600AF2BD2E1E654700A83AEB /* SupabaseError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseError.swift; sourceTree = "<group>"; };
 		6034C3372DE35E83002EE37A /* CareerLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6034C3502DE35E85002EE37A /* CareerLogTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CareerLogTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6034C35A2DE35E85002EE37A /* CareerLogUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CareerLogUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,7 +92,7 @@
 		6034C3712DE35E8C002EE37A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6034C3722DE35E8C002EE37A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6034C3762DE35E8C002EE37A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		6034C3772DE35E8C002EE37A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		6034C3772DE35E8C002EE37A /* CoverLetterListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterListViewController.swift; sourceTree = "<group>"; };
 		6034C3792DE35E8C002EE37A /* CareerLog.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CareerLog.xcdatamodel; sourceTree = "<group>"; };
 		6034C3822DE35E8E002EE37A /* CareerLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerLogTests.swift; sourceTree = "<group>"; };
 		6034C3852DE35E91002EE37A /* CareerLogUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerLogUITests.swift; sourceTree = "<group>"; };
@@ -71,6 +104,14 @@
 		604A49492DECE03B00082744 /* QuestionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionHeaderView.swift; sourceTree = "<group>"; };
 		604B0BF92E0DCF13004EC9A8 /* QuestionFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionFooterView.swift; sourceTree = "<group>"; };
 		604B0BFB2E0EAD57004EC9A8 /* TagEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagEditViewController.swift; sourceTree = "<group>"; };
+		604B0C072E142342004EC9A8 /* CoverLetterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterService.swift; sourceTree = "<group>"; };
+		604B0C092E152428004EC9A8 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		604B0C0B2E15335F004EC9A8 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		604B0C0E2E1817F8004EC9A8 /* CoverLetterInsertRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterInsertRequest.swift; sourceTree = "<group>"; };
+		604B0C102E181814004EC9A8 /* CoverLetterContentInsertRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterContentInsertRequest.swift; sourceTree = "<group>"; };
+		604B0C122E18181B004EC9A8 /* CoverLetterContentUpdateRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterContentUpdateRequest.swift; sourceTree = "<group>"; };
+		604B0C142E181821004EC9A8 /* CoverLetterUpdateRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverLetterUpdateRequest.swift; sourceTree = "<group>"; };
+		604B0C162E181E13004EC9A8 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		609169DB2DFC1BFB00A34D4F /* AnswerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerCell.swift; sourceTree = "<group>"; };
 		609169E52E04231300A34D4F /* TagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCell.swift; sourceTree = "<group>"; };
 		609169E72E04751800A34D4F /* TagListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagListView.swift; sourceTree = "<group>"; };
@@ -87,6 +128,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				604B0C052E13AD1A004EC9A8 /* Supabase in Frameworks */,
+				604B0C032E13AD1A004EC9A8 /* Storage in Frameworks */,
+				604B0C012E13AD1A004EC9A8 /* PostgREST in Frameworks */,
+				604B0BFF2E13AD1A004EC9A8 /* Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,6 +152,60 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		600AF2A62E1AF67100A83AEB /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				609169EB2E0568EC00A34D4F /* SidebarViewController.swift */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		600AF2AF2E1AF75A00A83AEB /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				604B0C0B2E15335F004EC9A8 /* LoginViewController.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		600AF2BF2E1E658300A83AEB /* CoverLetter */ = {
+			isa = PBXGroup;
+			children = (
+				604B0C0E2E1817F8004EC9A8 /* CoverLetterInsertRequest.swift */,
+				604B0C142E181821004EC9A8 /* CoverLetterUpdateRequest.swift */,
+				600AF2AB2E1AF71800A83AEB /* CoverLetterResponse.swift */,
+			);
+			path = CoverLetter;
+			sourceTree = "<group>";
+		};
+		600AF2C02E1E658C00A83AEB /* CoverLetterContent */ = {
+			isa = PBXGroup;
+			children = (
+				604B0C122E18181B004EC9A8 /* CoverLetterContentUpdateRequest.swift */,
+				604B0C102E181814004EC9A8 /* CoverLetterContentInsertRequest.swift */,
+				600AF2AD2E1AF72400A83AEB /* CoverLetterContentResponse.swift */,
+			);
+			path = CoverLetterContent;
+			sourceTree = "<group>";
+		};
+		600AF2C12E1E65A800A83AEB /* CoverLetterTag */ = {
+			isa = PBXGroup;
+			children = (
+				600AF2B52E1E5C3800A83AEB /* CoverLetterTag.swift */,
+			);
+			path = CoverLetterTag;
+			sourceTree = "<group>";
+		};
+		600AF2C22E1E65C500A83AEB /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				604B0C092E152428004EC9A8 /* AuthService.swift */,
+				604B0C072E142342004EC9A8 /* CoverLetterService.swift */,
+				600AF2B72E1E64CB00A83AEB /* CoverLetterTagService.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
 		6034C32E2DE35E83002EE37A = {
 			isa = PBXGroup;
 			children = (
@@ -137,6 +236,7 @@
 				6034C3702DE35E8C002EE37A /* CareerLog.xcdatamodeld */,
 				6034C3712DE35E8C002EE37A /* Info.plist */,
 				6034C3732DE35E8C002EE37A /* LaunchScreen.storyboard */,
+				604B0C062E142226004EC9A8 /* Network */,
 				609169EF2E05E9B400A34D4F /* Controller */,
 				609169F12E05EA4300A34D4F /* View */,
 				609169E32E03FD6700A34D4F /* Model */,
@@ -161,6 +261,29 @@
 			path = CareerLogUITests;
 			sourceTree = "<group>";
 		};
+		604B0C062E142226004EC9A8 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				600AF2BB2E1E64F800A83AEB /* SupabaseService.swift */,
+				600AF2B92E1E64F100A83AEB /* SupabaseClientProvider.swift */,
+				600AF2BD2E1E654700A83AEB /* SupabaseError.swift */,
+				604B0C162E181E13004EC9A8 /* Debouncer.swift */,
+				604B0C0D2E1817EE004EC9A8 /* DTO */,
+				600AF2C22E1E65C500A83AEB /* Service */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		604B0C0D2E1817EE004EC9A8 /* DTO */ = {
+			isa = PBXGroup;
+			children = (
+				600AF2BF2E1E658300A83AEB /* CoverLetter */,
+				600AF2C02E1E658C00A83AEB /* CoverLetterContent */,
+				600AF2C12E1E65A800A83AEB /* CoverLetterTag */,
+			);
+			path = DTO;
+			sourceTree = "<group>";
+		};
 		609169DA2DFC1BDA00A34D4F /* Detail */ = {
 			isa = PBXGroup;
 			children = (
@@ -178,6 +301,7 @@
 			isa = PBXGroup;
 			children = (
 				604A49392DE82D0D00082744 /* CoverLetter.swift */,
+				600AF2A92E1AF70500A83AEB /* CoverLetterState.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -185,20 +309,22 @@
 		609169EF2E05E9B400A34D4F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				609169F02E05E9CF00A34D4F /* Main */,
+				600AF2AF2E1AF75A00A83AEB /* Login */,
+				600AF2A62E1AF67100A83AEB /* Sidebar */,
+				609169F02E05E9CF00A34D4F /* List */,
 				609169DA2DFC1BDA00A34D4F /* Detail */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
 		};
-		609169F02E05E9CF00A34D4F /* Main */ = {
+		609169F02E05E9CF00A34D4F /* List */ = {
 			isa = PBXGroup;
 			children = (
-				609169EB2E0568EC00A34D4F /* SidebarViewController.swift */,
-				6034C3772DE35E8C002EE37A /* ViewController.swift */,
+				6034C3772DE35E8C002EE37A /* CoverLetterListViewController.swift */,
 				6034C38B2DE37F06002EE37A /* MainTableViewController.swift */,
+				600AF2A72E1AF6D400A83AEB /* SidebarFilter.swift */,
 			);
-			path = Main;
+			path = List;
 			sourceTree = "<group>";
 		};
 		609169F12E05EA4300A34D4F /* View */ = {
@@ -208,6 +334,7 @@
 				609169E52E04231300A34D4F /* TagCell.swift */,
 				609169E72E04751800A34D4F /* TagListView.swift */,
 				609169DB2DFC1BFB00A34D4F /* AnswerCell.swift */,
+				600AF2B22E1C331700A83AEB /* FixedImageContainerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -239,6 +366,10 @@
 			);
 			name = CareerLog;
 			packageProductDependencies = (
+				604B0BFE2E13AD1A004EC9A8 /* Auth */,
+				604B0C002E13AD1A004EC9A8 /* PostgREST */,
+				604B0C022E13AD1A004EC9A8 /* Storage */,
+				604B0C042E13AD1A004EC9A8 /* Supabase */,
 			);
 			productName = CareerLog;
 			productReference = 6034C3372DE35E83002EE37A /* CareerLog.app */;
@@ -308,14 +439,18 @@
 				};
 			};
 			buildConfigurationList = 6034C3322DE35E83002EE37A /* Build configuration list for PBXProject "CareerLog" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = 6034C32E2DE35E83002EE37A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				604B0BFD2E13AD1A004EC9A8 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6034C3382DE35E83002EE37A /* Products */;
 			projectDirPath = "";
@@ -359,24 +494,42 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				600AF2BE2E1E654700A83AEB /* SupabaseError.swift in Sources */,
 				60C5A0882E0991CD00628F4E /* DetailCollectionViewController.swift in Sources */,
 				6034C37E2DE35E8C002EE37A /* AppDelegate.swift in Sources */,
+				600AF2AA2E1AF70500A83AEB /* CoverLetterState.swift in Sources */,
+				604B0C172E181E13004EC9A8 /* Debouncer.swift in Sources */,
 				60C5A0852E09611100628F4E /* DetailSidebarView.swift in Sources */,
 				6034C37F2DE35E8C002EE37A /* CareerLog.xcdatamodeld in Sources */,
 				6034C3802DE35E8C002EE37A /* SceneDelegate.swift in Sources */,
+				604B0C0F2E1817F8004EC9A8 /* CoverLetterInsertRequest.swift in Sources */,
 				609169DC2DFC1BFB00A34D4F /* AnswerCell.swift in Sources */,
+				600AF2B62E1E5C3800A83AEB /* CoverLetterTag.swift in Sources */,
+				600AF2B32E1C331700A83AEB /* FixedImageContainerView.swift in Sources */,
+				604B0C0A2E15242D004EC9A8 /* AuthService.swift in Sources */,
 				604B0BFA2E0DCF13004EC9A8 /* QuestionFooterView.swift in Sources */,
+				600AF2BC2E1E64F800A83AEB /* SupabaseService.swift in Sources */,
+				604B0C082E142342004EC9A8 /* CoverLetterService.swift in Sources */,
 				604B0BFC2E0EAD57004EC9A8 /* TagEditViewController.swift in Sources */,
+				604B0C0C2E15335F004EC9A8 /* LoginViewController.swift in Sources */,
+				604B0C152E181821004EC9A8 /* CoverLetterUpdateRequest.swift in Sources */,
 				604A49382DE76F7F00082744 /* DetailViewController.swift in Sources */,
 				6034C38C2DE37F06002EE37A /* MainTableViewController.swift in Sources */,
+				604B0C112E181814004EC9A8 /* CoverLetterContentInsertRequest.swift in Sources */,
 				609169E62E04231300A34D4F /* TagCell.swift in Sources */,
 				60C5A08A2E09E66E00628F4E /* DatePickerToggleViewController.swift in Sources */,
 				604A494A2DECE03B00082744 /* QuestionHeaderView.swift in Sources */,
 				609169EC2E0568EC00A34D4F /* SidebarViewController.swift in Sources */,
 				609169E82E04751800A34D4F /* TagListView.swift in Sources */,
-				6034C3812DE35E8C002EE37A /* ViewController.swift in Sources */,
+				6034C3812DE35E8C002EE37A /* CoverLetterListViewController.swift in Sources */,
+				604B0C132E18181B004EC9A8 /* CoverLetterContentUpdateRequest.swift in Sources */,
+				600AF2AE2E1AF72400A83AEB /* CoverLetterContentResponse.swift in Sources */,
+				600AF2B82E1E64CB00A83AEB /* CoverLetterTagService.swift in Sources */,
 				609169EE2E05BCA500A34D4F /* CoverLetterCell.swift in Sources */,
+				600AF2BA2E1E64F100A83AEB /* SupabaseClientProvider.swift in Sources */,
+				600AF2AC2E1AF71800A83AEB /* CoverLetterResponse.swift in Sources */,
 				604A493A2DE82D0D00082744 /* CoverLetter.swift in Sources */,
+				600AF2A82E1AF6D400A83AEB /* SidebarFilter.swift in Sources */,
 				609169EA2E05479300A34D4F /* MemoInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -418,6 +571,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				6034C3722DE35E8C002EE37A /* Base */,
+				600AF2B42E1D586300A83AEB /* ko */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -432,11 +586,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = CareerLog/CareerLog.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = VJUK3HBJ2M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CareerLog/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Log";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -449,13 +606,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = leejinhee.CareerLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -466,11 +624,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = CareerLog/CareerLog.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = VJUK3HBJ2M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CareerLog/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Career Log";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -483,13 +644,14 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = leejinhee.CareerLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
@@ -498,6 +660,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -561,6 +724,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -724,6 +888,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		604B0BFD2E13AD1A004EC9A8 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase-community/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		604B0BFE2E13AD1A004EC9A8 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 604B0BFD2E13AD1A004EC9A8 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		604B0C002E13AD1A004EC9A8 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 604B0BFD2E13AD1A004EC9A8 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		604B0C022E13AD1A004EC9A8 /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 604B0BFD2E13AD1A004EC9A8 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		604B0C042E13AD1A004EC9A8 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 604B0BFD2E13AD1A004EC9A8 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		6034C3702DE35E8C002EE37A /* CareerLog.xcdatamodeld */ = {

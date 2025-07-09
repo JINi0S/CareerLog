@@ -23,17 +23,11 @@ class TagListView: UIView {
         return collectionView
     }()
     
-//    override var intrinsicContentSize: CGSize {
-//        setNeedsLayout()
-//        layoutIfNeeded()
-//        return collectionView.collectionViewLayout.collectionViewContentSize
-//    }
-    
     override var intrinsicContentSize: CGSize {
         setNeedsLayout()
         layoutIfNeeded()
         let size = collectionView.collectionViewLayout.collectionViewContentSize
-        return CGSize(width: max(size.width, 100), height: size.height)
+        return CGSize(width: size.width, height: size.height)
     }
     
     override init(frame: CGRect) {
@@ -51,12 +45,13 @@ class TagListView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-//        invalidateIntrinsicContentSize()
+         invalidateIntrinsicContentSize()
     }
-    
+
     func setTags(_ tags: [String]) {
         self.tags = tags
         collectionView.reloadData()
+//        collectionView.collectionViewLayout.invalidateLayout()
         collectionView.layoutIfNeeded()
         invalidateIntrinsicContentSize()
     }
@@ -79,12 +74,6 @@ extension TagListView: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         return cell
     }
     
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//        let tag = tags[indexPath.item]
-//        let size = (tag as NSString).size(withAttributes: [.font: UIFont.systemFont(ofSize: 12)])
-//        return CGSize(width: size.width + 24, height: size.height + 12)
-//    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let tag = tags[indexPath.item]
         let font = UIFont.systemFont(ofSize: 12)
@@ -94,9 +83,9 @@ extension TagListView: UICollectionViewDelegate, UICollectionViewDataSource, UIC
         // PaddingLabel에서 설정한 패딩을 고려
         let horizontalPadding: CGFloat = 8 + 8 // left + right
         let verticalPadding: CGFloat = 4 + 4 // top + bottom
-
-        let width = textSize.width + horizontalPadding
-        let height = textSize.height + verticalPadding
+    
+        let width = ceil(textSize.width + horizontalPadding)
+        let height = ceil(textSize.height + verticalPadding)
         
         return CGSize(width: width, height: height)
     }
