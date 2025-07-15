@@ -21,15 +21,21 @@ final class AuthService: NSObject {
     var isLoggedIn: Bool {
         return client.auth.currentUser != nil
     }
-    
-    func signIn(with provider: AuthProvider, completion: @escaping (Result<Void, Error>) -> Void) {
+    private weak var presentingViewController: UIViewController?
+
+    func signIn(
+        with provider: AuthProvider,
+        from viewController: UIViewController,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
         self.completion = completion
-        
+        self.presentingViewController = viewController
+
         switch provider {
         case .apple:
             handleAppleLogin()
         case .google:
-            handleGoogleLogin() // TOOO: 추후 구현
+            break // TODO
         }
     }
     
@@ -39,9 +45,7 @@ final class AuthService: NSObject {
         let controller = ASAuthorizationController(authorizationRequests: [request])
         controller.delegate = self
         controller.presentationContextProvider = self
-        DispatchQueue.global(qos: .background).async {
-            controller.performRequests()
-        }
+        controller.performRequests()
     }
     
     private func handleGoogleLogin() {
@@ -85,17 +89,14 @@ extension AuthService: ASAuthorizationControllerDelegate {
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("❌ Apple 로그인 실패: \(error.localizedDescription)")
         completion?(.failure(error))
     }
 }
 
 extension AuthService: ASAuthorizationControllerPresentationContextProviding {
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            fatalError("⚠️ No active window found for Apple Sign-In presentation.")
-        }
-        return window
+        presentingViewController?.view.window ?? ASPresentationAnchor()
     }
 }
 

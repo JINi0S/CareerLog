@@ -14,13 +14,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
         window = UIWindow(windowScene: windowScene)
         window?.tintColor = .accent
-        
-        if AuthService.shared.isLoggedIn {
-            showMainSplitView()
-        } else {
-            showLoginView()
-        }
-        
+        showMainSplitView()
         window?.makeKeyAndVisible()
     }
     
@@ -29,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = splitVC
     }
     
-    private func showLoginView() {
+    func showLoginView() {
         let loginVC = LoginViewController()
         loginVC.delegate = self
         let nav = UINavigationController(rootViewController: loginVC)
@@ -63,55 +57,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         return splitVC
     }
-    
-    /*
-     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-     let splitVC = UISplitViewController(style: .tripleColumn)
-     splitVC.preferredDisplayMode = .oneBesideSecondary
-     splitVC.preferredSplitBehavior = .automatic
-     
-     // 1. Primary (사이드바)
-     let sidebarVC = UINavigationController(rootViewController: SidebarViewController())
-     
-     // 2. Supplementary (중앙 뷰)
-     let mainVC = ViewController()
-     if let sidebar = sidebarVC.viewControllers.first as? SidebarViewController {
-     sidebar.delegate = mainVC
-     
-     // 수동으로 초기 상태 전달
-     let selectedState = sidebar.states.first ?? nil
-     mainVC.didSelectState(selectedState)
-     }
-     
-     // 3. Secondary (오른쪽 디테일 뷰)
-     let detailVC = DetailViewController()
-     detailVC.delegate = mainVC
-     if let delegate = detailVC as? CoverLetterSelectionDelegate {
-     mainVC.tableVC.delegate = delegate
-     } else {
-     assertionFailure("DetailViewController가 CoverLetterSelectionDelegate를 채택하지 않음")
-     }
-     
-     // 각 열에 뷰컨트롤러 할당
-     splitVC.setViewController(sidebarVC, for: .primary)
-     splitVC.setViewController(mainVC, for: .supplementary)
-     splitVC.setViewController(detailVC, for: .secondary)
-     splitVC.minimumSupplementaryColumnWidth = 400
-     splitVC.maximumSupplementaryColumnWidth = 700
-     splitVC.preferredDisplayMode = .automatic
-     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-     splitVC.hide(.secondary)
-     }
-     splitVC.show(.primary)
-     splitVC.hide(.secondary)
-     
-     // 윈도우 설정
-     window = UIWindow(windowScene: scene as! UIWindowScene)
-     window?.rootViewController = splitVC
-     window?.tintColor = .accent
-     window?.makeKeyAndVisible()
-     }
-     */
     
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

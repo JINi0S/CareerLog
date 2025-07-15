@@ -13,7 +13,7 @@ class TagCell: UICollectionViewCell {
     private let tagLabel: PaddingLabel = {
         let label = PaddingLabel()
         label.font = .systemFont(ofSize: 12)
-        label.textColor = .black
+        label.textColor = .label
         label.backgroundColor = .systemGray5
         label.layer.cornerRadius = 6
         label.layer.masksToBounds = true

@@ -17,6 +17,7 @@
 		600AF2BA2E1E64F100A83AEB /* SupabaseClientProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2B92E1E64F100A83AEB /* SupabaseClientProvider.swift */; };
 		600AF2BC2E1E64F800A83AEB /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2BB2E1E64F800A83AEB /* SupabaseService.swift */; };
 		600AF2BE2E1E654700A83AEB /* SupabaseError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2BD2E1E654700A83AEB /* SupabaseError.swift */; };
+		600AF2C42E20F6BE00A83AEB /* MockCoverLetterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 600AF2C32E20F6BE00A83AEB /* MockCoverLetterFactory.swift */; };
 		6034C37A2DE35E8C002EE37A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6034C36F2DE35E8C002EE37A /* Assets.xcassets */; };
 		6034C37C2DE35E8C002EE37A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6034C3732DE35E8C002EE37A /* LaunchScreen.storyboard */; };
 		6034C37E2DE35E8C002EE37A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6034C36E2DE35E8C002EE37A /* AppDelegate.swift */; };
@@ -84,6 +85,7 @@
 		600AF2B92E1E64F100A83AEB /* SupabaseClientProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClientProvider.swift; sourceTree = "<group>"; };
 		600AF2BB2E1E64F800A83AEB /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		600AF2BD2E1E654700A83AEB /* SupabaseError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseError.swift; sourceTree = "<group>"; };
+		600AF2C32E20F6BE00A83AEB /* MockCoverLetterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCoverLetterFactory.swift; sourceTree = "<group>"; };
 		6034C3372DE35E83002EE37A /* CareerLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareerLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6034C3502DE35E85002EE37A /* CareerLogTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CareerLogTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6034C35A2DE35E85002EE37A /* CareerLogUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CareerLogUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -302,6 +304,7 @@
 			children = (
 				604A49392DE82D0D00082744 /* CoverLetter.swift */,
 				600AF2A92E1AF70500A83AEB /* CoverLetterState.swift */,
+				600AF2C32E20F6BE00A83AEB /* MockCoverLetterFactory.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -510,6 +513,7 @@
 				604B0BFA2E0DCF13004EC9A8 /* QuestionFooterView.swift in Sources */,
 				600AF2BC2E1E64F800A83AEB /* SupabaseService.swift in Sources */,
 				604B0C082E142342004EC9A8 /* CoverLetterService.swift in Sources */,
+				600AF2C42E20F6BE00A83AEB /* MockCoverLetterFactory.swift in Sources */,
 				604B0BFC2E0EAD57004EC9A8 /* TagEditViewController.swift in Sources */,
 				604B0C0C2E15335F004EC9A8 /* LoginViewController.swift in Sources */,
 				604B0C152E181821004EC9A8 /* CoverLetterUpdateRequest.swift in Sources */,

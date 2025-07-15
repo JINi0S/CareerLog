@@ -46,7 +46,7 @@ class DetailViewController: UIViewController {
     
     // MARK: - View Configuration
     private func configureView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         sidebarView.delegate = self
     }
     
@@ -84,6 +84,8 @@ class DetailViewController: UIViewController {
         navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItem))
+        addButton.isHidden = (!AuthService.shared.isLoggedIn)
+        
         bookmarkButton = UIBarButtonItem(image: .none, style: .done, target: self, action: #selector(bookmarkItem))
         let sidebarButton = UIBarButtonItem(image: UIImage(systemName: "sidebar.right"), style: .plain, target: self, action:  #selector(toggleSidebar))
         updateBookmarkButton()
@@ -176,7 +178,7 @@ class DetailViewController: UIViewController {
     
     private func updateBookmarkButton() {
         let imageName = item?.isBookmarked == true ? "bookmark.fill" : "bookmark"
-        bookmarkButton.image = UIImage(systemName: imageName)
+        bookmarkButton?.image = UIImage(systemName: imageName)
     }
     
     // MARK: - Public Method
@@ -185,8 +187,8 @@ class DetailViewController: UIViewController {
         titleInputView.text = item.title
         sidebarView.configure(with: item)
         updateBookmarkButton()
-        collectionView.setTagOptions(tagOptions)
-        collectionView.reload(with: item)
+        collectionView?.setTagOptions(tagOptions)
+        collectionView?.reload(with: item)
     }
     
     func updateMainView() {
@@ -211,6 +213,11 @@ class DetailViewController: UIViewController {
     }
     
    private func updateCoverLetter(coverLetter: CoverLetter) {
+       guard AuthService.shared.isLoggedIn else {
+           print("미로그인 상태 - 컨텐츠 업데이트 요청 실패")
+           return
+       }
+       
         let updateValue = CoverLetterUpdateRequest(
             id: coverLetter.id,
             company: coverLetter.company,
@@ -235,6 +242,11 @@ class DetailViewController: UIViewController {
     }
     
     private func updateCoverLetterContent(content: CoverLetterContent) {
+        guard AuthService.shared.isLoggedIn else {
+            print("미로그인 상태 - 컨텐츠 업데이트 요청 실패")
+            return
+        }
+        
         let updateValue = CoverLetterContentUpdateRequest(
             id: content.id,
             cover_letter_id: content.coverLetterId,

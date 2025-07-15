@@ -83,7 +83,7 @@ final class AnswerCell: UICollectionViewCell {
         vStack.axis = .vertical
         vStack.spacing = 8
         vStack.translatesAutoresizingMaskIntoConstraints = false
-        vStack.backgroundColor = .systemGray6.withAlphaComponent(0.6)
+        vStack.backgroundColor = .systemGray5.withAlphaComponent(0.5)
         vStack.layer.cornerRadius = 8
         
         vStack.layoutMargins = UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16)
