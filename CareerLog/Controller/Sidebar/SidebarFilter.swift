@@ -15,7 +15,7 @@ enum SidebarFilter: Hashable {
     var title: String {
         switch self {
         case .all:
-            return "전체 보기"
+            return "전체"
         case .state(let state):
             return state.koreanName
         }

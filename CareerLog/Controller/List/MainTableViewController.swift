@@ -59,8 +59,9 @@ class CoverLetterTableViewController: UITableViewController {
             self.filteredItems = [key: list]
             self.filterOrder = [key]
         }
-
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     func selectAndNotifyItem(withId id: Int?) {
@@ -72,7 +73,9 @@ class CoverLetterTableViewController: UITableViewController {
     func selectFirstIfNeeded() {
         if let first = self.indexPathForItem(withId: self.filteredItems[self.filterOrder.first ?? .all]?.first?.id ?? -1) {
             print("Will be select first")
-            self.tableView.selectRow(at: first, animated: true, scrollPosition: .top)
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.selectRow(at: first, animated: true, scrollPosition: .top)
+            }
             self.handleSelection(at: first)
         } else {
             print("Will not select first")

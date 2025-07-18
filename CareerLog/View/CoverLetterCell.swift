@@ -84,7 +84,7 @@ class CoverLetterCell: UITableViewCell, UIContextMenuInteractionDelegate {
     private func setupContainerView() {
         contentView.addSubview(containerView)
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.backgroundColor = .systemBackground
+        containerView.backgroundColor = .backgroundWhite
         containerView.layer.cornerRadius = 12
         containerView.layer.masksToBounds = false
         containerView.layer.shadowColor = UIColor.black.cgColor

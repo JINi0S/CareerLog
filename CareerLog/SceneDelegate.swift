@@ -37,6 +37,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let sidebarVC = UINavigationController(rootViewController: SidebarViewController())
         let mainVC = CoverLetterListViewController()
+        let presenter = CoverLetterListPresenter(view: mainVC)
+        mainVC.presenter = presenter
+
         let detailVC = DetailViewController()
         
         if let sidebar = sidebarVC.viewControllers.first as? SidebarViewController {
