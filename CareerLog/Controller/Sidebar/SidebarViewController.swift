@@ -54,5 +54,6 @@ class SidebarViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedFilter = sidebarFilters[indexPath.row]
         delegate?.didSelectFilter(selectedFilter)
+        splitViewController?.show(.supplementary) // iOS 고려
     }
 }
