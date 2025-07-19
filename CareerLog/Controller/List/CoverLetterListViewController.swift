@@ -28,6 +28,7 @@ class CoverLetterListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
+        setupNavigationBar()
         presenter.viewDidLoad()
     }
     
@@ -39,7 +40,7 @@ class CoverLetterListViewController: UIViewController {
         }
     }
 
-    func setupLayout() {
+    private func setupLayout() {
         view.backgroundColor = .backgroundBlue
         navigationItem.title = "자기소개서 목록"
         // 테이블뷰 컨트롤러 추가
@@ -72,6 +73,16 @@ class CoverLetterListViewController: UIViewController {
             verticalStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
         ])
         tableVC.didMove(toParent: self)
+    }
+    
+    private func setupNavigationBar() {
+        let icon = UIImage(systemName: "chevron.left.2")
+        let hideSidebarButton = UIBarButtonItem(image: icon, style: .plain, target: self, action: #selector(didTapHideSidebarButton))
+        navigationItem.rightBarButtonItem = hideSidebarButton
+    }
+    
+    @objc private func didTapHideSidebarButton() {
+        splitViewController?.preferredDisplayMode = .secondaryOnly
     }
     
     @objc func handleAddButtonTap() {
