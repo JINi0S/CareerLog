@@ -11,9 +11,11 @@ protocol SidebarViewDelegate: AnyObject {
     func sidebarView(_ view: DetailSidebarView, didChangeState state: CoverLetterState)
     func sidebarView(_ view: DetailSidebarView, didUpdateCompany company: String)
     func sidebarView(_ view: DetailSidebarView, didUpdateJob job: String)
+    func sidebarView(_ view: DetailSidebarView, didUpdateUrl url: String)
     func sidebarView(_ view: DetailSidebarView, didUpdateMemo memo: String)
     func sidebarView(_ view: DetailSidebarView, didUpdateDueDate date: Date)
     func sidebarView(_ view: DetailSidebarView, didUpdateWhitespace bool: Bool)
+    func sidebarView(_ view: DetailSidebarView, didTapUrlButton urlString: String)
 }
 
 class DetailSidebarView: UIView {
@@ -21,10 +23,12 @@ class DetailSidebarView: UIView {
     
     private let companyTextField = MemoInputView(text: "")
     private let jobTextField = MemoInputView(text: "")
+    private let urlTextField = MemoInputView(text: "")
     private let memoTextField = MemoInputView(text: "")
     
     private let companyLabel: UILabel = DetailSidebarView.makeLabel(text: "회사")
     private let jobLabel: UILabel = DetailSidebarView.makeLabel(text: "직무")
+    private let urlLabel: UILabel = DetailSidebarView.makeLabel(text: "사이트")
     private let memoLabel: UILabel = DetailSidebarView.makeLabel(text: "메모")
     private let dueDateLabel: UILabel = DetailSidebarView.makeLabel(text: "마감일")
     private let whitespaceCheckBoxLabel: UILabel = DetailSidebarView.makeLabel(text: "공백 포함", applyTransform: false)
@@ -48,6 +52,7 @@ class DetailSidebarView: UIView {
         segmentControl.selectedSegmentIndex = CoverLetterState.allCases.firstIndex(of: item?.state ?? .unwrite) ?? 0
         companyTextField.configure(text: item?.company ?? "")
         jobTextField.configure(text: item?.jobPosition ?? "")
+        urlTextField.configure(text: item?.applyUrl ?? "")
         memoTextField.configure(text: item?.memo ?? "")
         includesWhitespaceCheckBox.isChecked = item?.includesWhitespace ?? true
         dueDatePickerToggleView.configure(initialDate: item?.dueDate, buttonTitle: "마감일 설정")
@@ -55,11 +60,19 @@ class DetailSidebarView: UIView {
     
     private let dummySpacerView = UIView()
 
+    private let urlButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "safari"), for: .normal)
+        button.tintColor = .secondaryLabel
+        return button
+    }()
+
     private func setupLayout() {
         backgroundColor = UIColor.systemGray6
         
         let companyHStack = makeHStack(label: companyLabel, inputView: companyTextField, alignment: .top)
         let jobHStack = makeHStack(label: jobLabel, inputView: jobTextField, alignment: .firstBaseline)
+        let urlHStack = makeHStack(label: urlLabel, inputView: urlTextField, alignment: .firstBaseline)
         let memoHStack = makeHStack(label: memoLabel, inputView: memoTextField, alignment: .top)
         let dueDateHStack = makeHStack(label: dueDateLabel, inputView: dueDatePickerToggleView, alignment: .top)
         let whitespaceCheckBoxHStack = makeHStack(label: whitespaceCheckBoxLabel, inputView: includesWhitespaceCheckBox, alignment: .top, distribution: .equalSpacing)
@@ -70,9 +83,19 @@ class DetailSidebarView: UIView {
         dummySpacerView.setContentHuggingPriority(.defaultLow, for: .vertical) // 늘어나도 됨
         dummySpacerView.setContentCompressionResistancePriority(.required, for: .vertical) // 찌그러지지는 않음
         
+        urlHStack.addSubview(urlButton)
+        urlButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            urlButton.trailingAnchor.constraint(equalTo: urlHStack.trailingAnchor, constant: -8),
+            urlButton.centerYAnchor.constraint(equalTo: urlTextField.centerYAnchor),
+            urlButton.widthAnchor.constraint(equalToConstant: 20),
+            urlButton.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        
         let verticalStack = UIStackView(arrangedSubviews: [
             companyHStack,
             jobHStack,
+            urlHStack,
             memoHStack,
             whitespaceCheckBoxHStack,
             dueDateHStack
@@ -99,6 +122,8 @@ class DetailSidebarView: UIView {
     
     private func setupActions() {
         segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        urlButton.addTarget(self, action: #selector(urlButtonTapped), for: .touchUpInside)
+        includesWhitespaceCheckBox.addTarget(self, action: #selector(checkBoxChanged), for: .touchUpInside)
         
         companyTextField.onTextChanged = { [weak self] text in
             guard let self else { return }
@@ -107,6 +132,10 @@ class DetailSidebarView: UIView {
         jobTextField.onTextChanged = { [weak self] text in
             guard let self else { return }
             delegate?.sidebarView(self, didUpdateJob: text)
+        }
+        urlTextField.onTextChanged = { [weak self] text in
+            guard let self else { return }
+            delegate?.sidebarView(self, didUpdateUrl: text)
         }
         memoTextField.onTextChanged = { [weak self] text in
             guard let self else { return }
@@ -117,8 +146,6 @@ class DetailSidebarView: UIView {
             guard let self else { return }
             delegate?.sidebarView(self, didUpdateDueDate: date)
         }
-        
-        includesWhitespaceCheckBox.addTarget(self, action: #selector(checkBoxChanged), for: .touchUpInside)
     }
     
     @objc private func segmentChanged() {
@@ -127,6 +154,10 @@ class DetailSidebarView: UIView {
     
     @objc private func checkBoxChanged() {
         delegate?.sidebarView(self, didUpdateWhitespace: includesWhitespaceCheckBox.isChecked)
+    }
+    
+    @objc private func urlButtonTapped() {
+        delegate?.sidebarView(self, didTapUrlButton: urlTextField.textView.text)
     }
     
     // MARK: - Helper UI Methods

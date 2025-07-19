@@ -18,6 +18,7 @@ struct CoverLetterUpdateRequest: Encodable {
     let job_position: String?
     let memo: String?
     let updated_at: Date
+    let apply_url: String
     let includes_whitespace: Bool
 }
 
@@ -33,6 +34,7 @@ extension CoverLetterUpdateRequest {
             job_position: coverLetter.jobPosition,
             memo: coverLetter.memo,
             updated_at: coverLetter.updatedAt,
+            apply_url: coverLetter.applyUrl,
             includes_whitespace: coverLetter.includesWhitespace
         )
     }

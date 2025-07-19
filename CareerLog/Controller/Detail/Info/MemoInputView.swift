@@ -22,10 +22,10 @@ final class MemoInputView: UIView, UITextViewDelegate {
         textView.delegate = self
         textView.font = .systemFont(ofSize: 16)
         textView.textColor = .label
+        textView.autocapitalizationType = .none
         textView.backgroundColor = .backgroundDark
         textView.isScrollEnabled = false
         textView.translatesAutoresizingMaskIntoConstraints = false
-        
         textView.textAlignment = .left
         textView.textContainerInset = .init(top: 8, left: 14, bottom: 8, right: 14)
         textView.textContainer.lineFragmentPadding = 0

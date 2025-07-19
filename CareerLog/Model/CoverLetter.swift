@@ -22,6 +22,7 @@ class CoverLetter: Equatable {
     var memo: String?
     let createdAt: Date
     var updatedAt: Date
+    var applyUrl: String
     var includesWhitespace: Bool
         
     init(
@@ -36,6 +37,7 @@ class CoverLetter: Equatable {
         memo: String? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now,
+        applyUrl: String = "",
         includesWhitespace: Bool = true
     ) {
         self.id = id
@@ -49,22 +51,24 @@ class CoverLetter: Equatable {
         self.memo = memo
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.applyUrl = applyUrl
         self.includesWhitespace = includesWhitespace
     }
     
     static func == (lhs: CoverLetter, rhs: CoverLetter) -> Bool {
         return lhs.id == rhs.id &&
-               lhs.company == rhs.company &&
-               lhs.title == rhs.title &&
-               lhs.contents == rhs.contents &&
-               lhs.state == rhs.state &&
-               lhs.isBookmarked == rhs.isBookmarked &&
-               lhs.dueDate == rhs.dueDate &&
-               lhs.jobPosition == rhs.jobPosition &&
-               lhs.memo == rhs.memo &&
-               lhs.createdAt == rhs.createdAt &&
-               lhs.updatedAt == rhs.updatedAt &&
-               lhs.includesWhitespace == rhs.includesWhitespace
+        lhs.company == rhs.company &&
+        lhs.title == rhs.title &&
+        lhs.contents == rhs.contents &&
+        lhs.state == rhs.state &&
+        lhs.isBookmarked == rhs.isBookmarked &&
+        lhs.dueDate == rhs.dueDate &&
+        lhs.jobPosition == rhs.jobPosition &&
+        lhs.memo == rhs.memo &&
+        lhs.createdAt == rhs.createdAt &&
+        lhs.updatedAt == rhs.updatedAt &&
+        lhs.applyUrl == rhs.applyUrl &&
+        lhs.includesWhitespace == rhs.includesWhitespace
     }
 }
 

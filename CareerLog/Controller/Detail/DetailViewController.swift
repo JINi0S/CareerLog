@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 
 // MARK: - Constants
 private enum Constants {
@@ -228,6 +229,7 @@ class DetailViewController: UIViewController {
             job_position: coverLetter.jobPosition,
             memo: coverLetter.memo,
             updated_at: coverLetter.updatedAt,
+            apply_url: coverLetter.applyUrl,
             includes_whitespace: coverLetter.includesWhitespace
         )
 
@@ -300,6 +302,36 @@ extension DetailViewController: CoverLetterSelectionDelegate {
 // MARK: - SidebarViewDelegate
 // TODO: 쓰로틀??! 드바운스 적용
 extension DetailViewController: SidebarViewDelegate {
+    func sidebarView(_ view: DetailSidebarView, didTapUrlButton urlString: String) {
+        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: trimmed), UIApplication.shared.canOpenURL(url) else {
+            showInvalidUrlAlert()
+            return
+        }
+        presentSafariViewController(for: url)
+    }
+    
+    private func presentSafariViewController(for url: URL) {
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.modalPresentationStyle = .currentContext
+        
+        if let topVC = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?
+            .rootViewController { topVC.present(safariVC, animated: true) }
+    }
+    
+    private func showInvalidUrlAlert() {
+        let alert = UIAlertController(
+            title: "유효하지 않은 URL",
+            message: "올바른 링크를 입력했는지 확인해주세요.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+
     func sidebarView(_ view: DetailSidebarView, didChangeState state: CoverLetterState) {
         self.item?.state = state
         print("didChangeState")
@@ -322,6 +354,14 @@ extension DetailViewController: SidebarViewDelegate {
         print("didUpdateJob")
         self.item?.jobPosition = job
         updateMainView()
+        if let item {
+            self.triggerDebouncedUpdate(coverLetter: item)
+        }
+    }
+    
+    func sidebarView(_ view: DetailSidebarView, didUpdateUrl url: String) {
+        print("didUpdateUrl")
+        self.item?.applyUrl = url
         if let item {
             self.triggerDebouncedUpdate(coverLetter: item)
         }

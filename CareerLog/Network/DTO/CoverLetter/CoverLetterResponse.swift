@@ -10,16 +10,17 @@ import UIKit
 
 struct CoverLetterResponse: Decodable {
     let id: Int
-    var company: String?
-    var title: String
-    var state: String
-    var isBookmarked: Bool
-    var dueDate: Date?
-    var jobPosition: String?
-    var memo: String?
-    var createdAt: Date
-    var updatedAt: Date
-    var includesWhitespace: Bool
+    let company: String?
+    let title: String
+    let state: String
+    let isBookmarked: Bool
+    let dueDate: Date?
+    let jobPosition: String?
+    let memo: String?
+    let createdAt: Date
+    let updatedAt: Date
+    let applyUrl: String
+    let includesWhitespace: Bool
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -32,6 +33,7 @@ struct CoverLetterResponse: Decodable {
         case memo
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case applyUrl = "apply_url"
         case includesWhitespace = "includes_whitespace"
     }
     
@@ -48,6 +50,7 @@ struct CoverLetterResponse: Decodable {
             memo: memo,
             createdAt: createdAt,
             updatedAt: updatedAt,
+            applyUrl: applyUrl,
             includesWhitespace: includesWhitespace
         )
     }
