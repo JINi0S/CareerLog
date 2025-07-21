@@ -52,6 +52,9 @@ class DetailViewController: UIViewController {
     }
     
     private func setupLayout() {
+#if os(iOS)
+        toggleSidebar()
+#endif
         let separatorView = UIView()
         separatorView.backgroundColor = .systemGray4
         separatorView.translatesAutoresizingMaskIntoConstraints = false

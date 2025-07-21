@@ -11,6 +11,12 @@ protocol CoverLetterSelectionDelegate: AnyObject {
     func didSelectCoverLetter(_ coverLetter: CoverLetter)
 }
 
+enum SelectionSource {
+    case userInitiated     // 유저가 수동 선택한 경우
+    case systemAuto        // Mac 등 시스템에서 상태 변경에 따라 자동 선택한 경우
+    case none              // 선택 없이 UI만 업데이트
+}
+
 class CoverLetterListViewController: UIViewController {
     var presenter: CoverLetterListPresenter!
     let tableVC: CoverLetterTableViewController
@@ -18,6 +24,7 @@ class CoverLetterListViewController: UIViewController {
     private lazy var addButton: UIButton = makeButton(title: "자기소개서 추가하기", image: UIImage(named: "plus"), tintColor: .tintColor)
     private lazy var loginButton: UIButton = makeButton(title: "로그인", image: nil, tintColor: .tintColor)
     private lazy var logoutButton: UIButton = makeButton(title: "로그아웃", image: nil, tintColor: .systemRed)
+    private let searchController = UISearchController(searchResultsController: nil)
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         self.tableVC = CoverLetterTableViewController()
@@ -76,9 +83,18 @@ class CoverLetterListViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        let icon = UIImage(systemName: "chevron.left.2")
-        let hideSidebarButton = UIBarButtonItem(image: icon, style: .plain, target: self, action: #selector(didTapHideSidebarButton))
-        navigationItem.rightBarButtonItem = hideSidebarButton
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "회사명, 제목, 내용으로 검색"
+        searchController.searchBar.searchTextField.backgroundColor = .systemBackground
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+        
+        if UIDevice.current.userInterfaceIdiom == .pad || UIDevice.current.userInterfaceIdiom == .mac {
+            let icon = UIImage(systemName: "chevron.left.2")
+            let hideSidebarButton = UIBarButtonItem(image: icon, style: .plain, target: self, action: #selector(didTapHideSidebarButton))
+            navigationItem.rightBarButtonItem = hideSidebarButton
+        }
     }
     
     @objc private func didTapHideSidebarButton() {
@@ -97,13 +113,38 @@ class CoverLetterListViewController: UIViewController {
         presenter.didTapLogoutButton()
     }
     
-    func updateListUI(with items: [CoverLetter], selectedId: Int?) {
+    
+//    func updateListUI(with items: [CoverLetter], selectedId: Int?, isAutoSelection: Bool) {
+//        tableVC.configure(items: items, filter: presenter.selectedFilter)
+//        
+//        if isAutoSelection {
+//            DispatchQueue.main.async {
+//                if let id = selectedId,  items.contains(where: { $0.id == id })  {
+//                    self.tableVC.selectAndNotifyItem(withId: id)
+//                } else {
+//                    self.tableVC.selectFirstIfNeeded()
+//                }
+//            }
+//        }
+//    }
+//    
+    func updateListUI(with items: [CoverLetter], selectedId: Int?, selectionSource: SelectionSource) {
         tableVC.configure(items: items, filter: presenter.selectedFilter)
+
         DispatchQueue.main.async {
-            if let id = selectedId,  items.contains(where: { $0.id == id })  {
-                self.tableVC.selectAndNotifyItem(withId: id)
-            } else {
-                self.tableVC.selectFirstIfNeeded()
+            switch selectionSource {
+            case .userInitiated:
+                if let id = selectedId, items.contains(where: { $0.id == id }) {
+                    self.tableVC.selectAndNotifyItem(withId: id, isAutoSelection: false)
+                }
+            case .systemAuto:
+                if let id = selectedId, items.contains(where: { $0.id == id }) {
+                    self.tableVC.selectAndNotifyItem(withId: id, isAutoSelection: true)
+                } else {
+                    self.tableVC.selectFirstIfNeeded()
+                }
+            case .none:
+                break // 아무 것도 선택 안 함
             }
         }
     }
@@ -122,8 +163,8 @@ class CoverLetterListViewController: UIViewController {
 }
 
 extension CoverLetterListViewController: CoverLetterListViewProtocol {
-    func showCoverLetters(_ items: [CoverLetter], selectedId: Int?) {
-        updateListUI(with: items, selectedId: selectedId)
+    func showCoverLetters(_ items: [CoverLetter], selectedId: Int?, selectionSource: SelectionSource) {
+        updateListUI(with: items, selectedId: selectedId, selectionSource: selectionSource)
     }
 
     
@@ -190,6 +231,13 @@ extension CoverLetterListViewController: DetailViewControllerDelegate {
     // 디테일에서 업데이트시 메인 테이블 리스트 갱신
     func didUpdateCoverLetter(for item: CoverLetter) {
         presenter.didUpdateCoverLetter(item)
+    }
+}
+
+extension CoverLetterListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let text = searchController.searchBar.text ?? ""
+        presenter.updateSearchText(text)
     }
 }
 

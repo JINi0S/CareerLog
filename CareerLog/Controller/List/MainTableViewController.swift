@@ -64,18 +64,18 @@ class CoverLetterTableViewController: UITableViewController {
         }
     }
     
-    func selectAndNotifyItem(withId id: Int?) {
+    func selectAndNotifyItem(withId id: Int?, isAutoSelection: Bool) {
         guard let id, let indexPath = indexPathForItem(withId: id) else { return }
-        tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+        if isAutoSelection {
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+        }
         handleSelection(at: indexPath)
     }
     
     func selectFirstIfNeeded() {
         if let first = self.indexPathForItem(withId: self.filteredItems[self.filterOrder.first ?? .all]?.first?.id ?? -1) {
             print("Will be select first")
-            DispatchQueue.main.async { [weak self] in
-                self?.tableView.selectRow(at: first, animated: true, scrollPosition: .top)
-            }
+            self.tableView.selectRow(at: first, animated: true, scrollPosition: .top)
             self.handleSelection(at: first)
         } else {
             print("Will not select first")
@@ -147,6 +147,7 @@ extension CoverLetterTableViewController {
         if let item = filteredItems[filter]?[indexPath.row] {
             selectionDelegate?.didSelectCoverLetter(item)
         }
+        splitViewController?.show(.secondary)
         
         // let detailVC = DetailViewController(item: selectedItem)
         // navigationController?.pushViewController(detailVC, animated: true)

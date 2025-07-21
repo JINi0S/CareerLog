@@ -5,29 +5,42 @@
 //  Created by Lee Jinhee on 7/15/25.
 //
 
+import Foundation
+
 // TODO: 업데이트 동작 되고 있는지 최종 확인 필요
-final class CoverLetterListPresenter {
+protocol CoverLetterListPresenterProtocol {
+    func viewDidLoad()
+    func didTapAddButton()
+    func didTapLoginButton()
+    func didTapLogoutButton()
+    func didToggleBookmark(for item: CoverLetter)
+    func didDeleteCoverLetter(_ item: CoverLetter)
+    func didSelectFilter(_ filter: SidebarFilter)
+    func updateSearchText(_ text: String)
+    func didUpdateCoverLetter(_ item: CoverLetter)
+}
+
+final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
     weak var view: CoverLetterListViewProtocol?
-    private let service = CoverLetterService()
+    private let service: CoverLetterServiceProtocol
+    
+    // 상태 관리
+    private var searchText: String = ""
     var selectedFilter: SidebarFilter = .all
     private var selectedId: Int?
-    
     private(set) var allItems: [CoverLetter] = []
     
-    private func filteredItems() -> [CoverLetter] {
-        allItems.filter { selectedFilter.contains($0) }
-    }
-    
-    required init(view: CoverLetterListViewProtocol) {
+    init(view: CoverLetterListViewProtocol, service: CoverLetterServiceProtocol) {
         self.view = view
+        self.service = service
     }
     
     // MARK: - View Life Cycle
     func viewDidLoad() {
-        let isLoggedIn = AuthService.shared.isLoggedIn
-        view?.updateLoginUI(isLoggedIn: isLoggedIn)
-        if isLoggedIn {
-            fetchCoverLetters()
+        updateLoginUI()
+        
+        if AuthService.shared.isLoggedIn {
+            Task { await fetchCoverLetters() }
         } else {
             loadMockCoverLetters()
         }
@@ -63,16 +76,22 @@ final class CoverLetterListPresenter {
     
     func didToggleBookmark(for item: CoverLetter) {
         guard let index = allItems.firstIndex(where: { $0.id == item.id }) else { return }
-        allItems[index].isBookmarked.toggle()
+        allItems[index].isBookmarked.toggle() // 상태 업데이트
         let updatedItem = allItems[index]
         
+        view?.reloadRow(withId: item.id) // UI 즉시 반영
+        
+        // 서버 동기화
         Task {
             do {
                 try await saveCoverLetter(updatedItem)
-                view?.reloadRow(withId: item.id)
             } catch {
-                view?.showError(message: "북마크를 저장하지 못했어요.")
+                // 실패 시 롤백
                 print("자기소개서 북마크 업데이트 실패:", error.localizedDescription)
+                allItems[index].isBookmarked.toggle() // 상태 업데이트
+                view?.showError(message: "북마크를 저장하지 못했어요.")
+                view?.reloadRow(withId: item.id)
+                
             }
         }
     }
@@ -96,27 +115,32 @@ final class CoverLetterListPresenter {
                     selectedId = nil
                 }
                 
-                updateFilteredList()
+                updateFilteredList(selectionSource: .systemAuto)
             } catch {
                 view?.showError(message: "삭제 실패: \(error.localizedDescription)")
             }
         }
     }
     
+    func updateSearchText(_ text: String) {
+        self.searchText = text
+        updateFilteredList(selectionSource: .none)
+    }
+    
     func didSelectFilter(_ filter: SidebarFilter) {
         self.selectedFilter = filter
-        updateFilteredList()
+        updateFilteredList(selectionSource: .userInitiated)
     }
     
     func didUpdateCoverLetter(_ item: CoverLetter) {
+        // 로컬 상태 업데이트
         guard let index = allItems.firstIndex(where: { $0.id == item.id }) else { return }
         allItems[index] = item
         selectedId = item.id
-        updateFilteredList()
+        updateFilteredList(selectionSource: .none)
         
-        Task {
-            try await saveCoverLetter(item) // 필요한지 재확인
-        }
+        // 서버 동기화
+        Task { try await saveCoverLetter(item) }
     }
     
     func saveCoverLetter(_ coverLetter: CoverLetter) async throws {
@@ -129,34 +153,68 @@ final class CoverLetterListPresenter {
     }
     
     // MARK: - Private Helpers
-    private func updateFilteredList() {
-        view?.showCoverLetters(filteredItems(), selectedId: selectedId)
+    private func updateLoginUI() {
+        let isLoggedIn = AuthService.shared.isLoggedIn
+        view?.updateLoginUI(isLoggedIn: isLoggedIn)
+    }
+    
+    private func updateFilteredList(selectionSource: SelectionSource) {
+        Task {
+            let filteredItems = await filteredItemsAsync()
+            await MainActor.run {
+                view?.showCoverLetters(filteredItems, selectedId: selectedId, selectionSource: selectionSource)
+            }
+        }
+    }
+    
+    // 필터링 로직을 async로 만들어서 메인 스레드 블로킹 방지
+    private func filteredItemsAsync() async -> [CoverLetter] {
+        return await Task.detached(priority: .userInitiated) { [weak self] in
+            guard let self = self else { return [] }
+            return self.performFiltering()
+        }.value
+    }
+    
+    private func performFiltering() -> [CoverLetter] {
+        let filtered = allItems.filter { selectedFilter.contains($0) }
+        
+        guard !searchText.isEmpty else { return filtered }
+        
+        return filtered.filter { coverLetter in
+            let inTitleOrCompany =
+            coverLetter.title.localizedCaseInsensitiveContains(searchText) ||
+            coverLetter.company.localizedCaseInsensitiveContains(searchText)
+            
+            let inContents = coverLetter.contents.contains { content in
+                content.question.localizedCaseInsensitiveContains(searchText) ||
+                content.answers.contains { $0.localizedCaseInsensitiveContains(searchText) }
+            }
+            
+            return inTitleOrCompany || inContents
+        }
     }
     
     private func loadMockCoverLetters() {
         self.allItems = MockCoverLetterFactory.makeMockData()
-        updateFilteredList()
+        updateFilteredList(selectionSource: .systemAuto)
     }
     
-    private func fetchCoverLetters() {
-        Task {
-            do {
-                var items = try await service.fetchAll()
-                if items.isEmpty {
-                    let defaults = try await createDefaultTemplates()
-                    items = defaults
-                }
-                let contentsList = try await items.parallelMap {
-                    try await self.service.fetchContentsWithTags(for: $0.id)
-                }
-                for (index, contents) in contentsList.enumerated() {
-                    items[index].contents = contents
-                }
-                self.allItems = items
-                updateFilteredList()
-            } catch {
-                view?.showError(message: "자기소개서 로딩 실패")
+    private func fetchCoverLetters() async {
+        do {
+            var items = try await service.fetchAll()
+            if items.isEmpty {
+                items = try await createDefaultTemplates()
             }
+            let contentsList = try await items.parallelMap {
+                try await self.service.fetchContentsWithTags(for: $0.id)
+            }
+            for (index, contents) in contentsList.enumerated() {
+                items[index].contents = contents
+            }
+            self.allItems = items
+            updateFilteredList(selectionSource: .systemAuto)
+        } catch {
+            view?.showError(message: "자기소개서 로딩 실패")
         }
     }
     
@@ -166,7 +224,7 @@ final class CoverLetterListPresenter {
             let saved = try await service.insert(coverLetter: request)
             allItems.insert(saved, at: 0)
             selectedId = saved.id
-            updateFilteredList()
+            updateFilteredList(selectionSource: .systemAuto)
         } catch {
             view?.showError(message: "자기소개서 추가 실패")
         }

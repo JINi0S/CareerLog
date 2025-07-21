@@ -8,7 +8,17 @@
 import Foundation
 import Supabase
 
-final class CoverLetterService: SupabaseService {
+protocol CoverLetterServiceProtocol {
+    func insert(coverLetter: CoverLetterInsertRequest) async throws -> CoverLetter
+    func insertContent(_ content: CoverLetterContentInsertRequest) async throws -> CoverLetterContent
+    func updateContent(content: CoverLetterContentUpdateRequest) async throws
+    func updateCoverLetter(coverLetter: CoverLetterUpdateRequest) async throws
+    func fetchAll() async throws -> [CoverLetter]
+    func fetchContentsWithTags(for coverLetterId: Int) async throws -> [CoverLetterContent]
+    func deleteCoverLetter(coverLetterId: Int) async throws
+}
+
+final class CoverLetterService: SupabaseService, CoverLetterServiceProtocol {
     var client = SupabaseClientProvider.shared
     
     // MARK: - Insert
