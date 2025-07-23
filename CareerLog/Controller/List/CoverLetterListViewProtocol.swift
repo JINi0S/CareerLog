@@ -9,7 +9,8 @@
 protocol CoverLetterListViewProtocol: AnyObject {
     func showCoverLetters(_ items: [CoverLetter], selectedId: Int?, selectionSource: SelectionSource)
     func updateLoginUI(isLoggedIn: Bool)
-    func reloadRow(withId id: Int) 
+    func updateFilteringBookmarkButton(isFiltering: Bool)
+    func reloadRow(withId id: Int)
     func showLoginModal(reason: String?)
     func showError(message: String)
 }

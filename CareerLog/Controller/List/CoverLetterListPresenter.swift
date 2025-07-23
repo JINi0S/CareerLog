@@ -25,6 +25,7 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
     private let service: CoverLetterServiceProtocol
     
     // 상태 관리
+    private var isFilteringBookmark: Bool = false
     private var searchText: String = ""
     var selectedFilter: SidebarFilter = .all
     private var selectedId: Int?
@@ -72,6 +73,12 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
                 self?.view?.showError(message: "로그아웃 실패: \(error.localizedDescription)")
             }
         }
+    }
+    
+    func didTapFilteringBookmarkButton() {
+        isFilteringBookmark.toggle()
+        view?.updateFilteringBookmarkButton(isFiltering: isFilteringBookmark)
+        updateFilteredList(selectionSource: .userInitiated)
     }
     
     func didToggleBookmark(for item: CoverLetter) {
@@ -176,8 +183,11 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
     }
     
     private func performFiltering() -> [CoverLetter] {
-        let filtered = allItems.filter { selectedFilter.contains($0) }
+        var filtered = allItems.filter { selectedFilter.contains($0) }
         
+        if isFilteringBookmark {
+            filtered = filtered.filter { $0.isBookmarked }
+        }
         guard !searchText.isEmpty else { return filtered }
         
         return filtered.filter { coverLetter in

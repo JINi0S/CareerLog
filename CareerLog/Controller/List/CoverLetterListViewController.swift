@@ -20,10 +20,12 @@ enum SelectionSource {
 class CoverLetterListViewController: UIViewController {
     var presenter: CoverLetterListPresenter!
     let tableVC: CoverLetterTableViewController
-
-    private lazy var addButton: UIButton = makeButton(title: "자기소개서 추가하기", image: UIImage(named: "plus"), tintColor: .tintColor)
-    private lazy var loginButton: UIButton = makeButton(title: "로그인", image: nil, tintColor: .tintColor)
-    private lazy var logoutButton: UIButton = makeButton(title: "로그아웃", image: nil, tintColor: .systemRed)
+    
+    private lazy var filteringBookmarkButton: UIButton = UIButton()
+    private let buttonVStack = UIStackView()
+    private lazy var addButton: UIButton = makePlainButton(title: "자기소개서 추가하기", image: UIImage(named: "plus"), tintColor: .tintColor)
+    private lazy var loginButton: UIButton = makePlainButton(title: "로그인", image: nil, tintColor: .tintColor)
+    private lazy var logoutButton: UIButton = makePlainButton(title: "로그아웃", image: nil, tintColor: .systemRed)
     private let searchController = UISearchController(searchResultsController: nil)
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -34,6 +36,8 @@ class CoverLetterListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTopButtons()
+        setupBottomButtons()
         setupLayout()
         setupNavigationBar()
         presenter.viewDidLoad()
@@ -46,7 +50,40 @@ class CoverLetterListViewController: UIViewController {
             showLoginModal(reason: "로그인 후 자기소개서를 저장하거나 불러올 수 있어요.")
         }
     }
+    
+    private func setupTopButtons() {
+        filteringBookmarkButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filteringBookmarkButton)
+        updateFilteringBookmarkButton(isFiltering: false)
 
+        filteringBookmarkButton.addTarget(self, action: #selector(filteringBookmarkButtonTapped), for: .touchUpInside)
+
+        NSLayoutConstraint.activate([
+            filteringBookmarkButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 6),
+            filteringBookmarkButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+        ])
+    }
+    
+    private func setupBottomButtons() {
+        [addButton, loginButton, logoutButton].forEach {
+            buttonVStack.addArrangedSubview($0)
+        }
+        buttonVStack.axis = .vertical
+        buttonVStack.spacing = 12
+        buttonVStack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(buttonVStack)
+
+        addButton.addTarget(self, action: #selector(handleAddButtonTap), for: .touchUpInside)
+        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            buttonVStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            buttonVStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            buttonVStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+        ])
+    }
+    
     private func setupLayout() {
         view.backgroundColor = .backgroundBlue
         navigationItem.title = "자기소개서 목록"
@@ -55,29 +92,11 @@ class CoverLetterListViewController: UIViewController {
         view.addSubview(tableVC.view)
         tableVC.view.translatesAutoresizingMaskIntoConstraints = false
         
-        let verticalStack = UIStackView(arrangedSubviews: [
-            addButton,
-            loginButton,
-            logoutButton
-        ])
-        verticalStack.axis = .vertical
-        verticalStack.spacing = 12
-        verticalStack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(verticalStack)
-        
-        addButton.addTarget(self, action: #selector(handleAddButtonTap), for: .touchUpInside)
-        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
-        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
-        
         NSLayoutConstraint.activate([
-            tableVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableVC.view.topAnchor.constraint(equalTo: filteringBookmarkButton.bottomAnchor, constant: 6),
             tableVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableVC.view.bottomAnchor.constraint(equalTo: verticalStack.topAnchor, constant: -8),
-            
-            verticalStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            verticalStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            verticalStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            tableVC.view.bottomAnchor.constraint(equalTo: buttonVStack.topAnchor, constant: -8),
         ])
         tableVC.didMove(toParent: self)
     }
@@ -117,6 +136,9 @@ class CoverLetterListViewController: UIViewController {
         presenter.didTapLogoutButton()
     }
     
+    @objc func filteringBookmarkButtonTapped() {
+        presenter.didTapFilteringBookmarkButton()
+    }
     
 //    func updateListUI(with items: [CoverLetter], selectedId: Int?, isAutoSelection: Bool) {
 //        tableVC.configure(items: items, filter: presenter.selectedFilter)
@@ -153,10 +175,17 @@ class CoverLetterListViewController: UIViewController {
         }
     }
     
-    private func makeButton(title: String?, image: UIImage?, tintColor: UIColor) -> UIButton {
+    private func makePlainButton(
+        title: String?,
+        image: UIImage?,
+        tintColor: UIColor,
+        fontSize: CGFloat = 15,
+        weight: UIFont.Weight = .medium
+    ) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.setImage(image, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: fontSize, weight: weight)
         button.tintColor = tintColor
         return button
     }
@@ -177,6 +206,37 @@ extension CoverLetterListViewController: CoverLetterListViewProtocol {
             self.loginButton.isHidden = isLoggedIn
             self.logoutButton.isHidden = !isLoggedIn
         }
+    }
+    
+    func updateFilteringBookmarkButton(isFiltering: Bool) {
+        var config = UIButton.Configuration.plain()
+        config.title = "북마크만"
+        config.imagePadding = 4
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var updated = incoming
+            updated.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+            return updated
+        }
+
+        let imageConfig = UIImage.SymbolConfiguration(pointSize: 11, weight: .medium)
+
+        if isFiltering {
+            config.image = UIImage(systemName: "bookmark.fill", withConfiguration: imageConfig)
+            config.baseForegroundColor = .accent
+            config.background.backgroundColor = UIColor.accent.withAlphaComponent(0.1)
+            config.background.cornerRadius = 6
+            filteringBookmarkButton.layer.borderWidth = 1
+            filteringBookmarkButton.layer.borderColor = UIColor.accent.cgColor
+            filteringBookmarkButton.layer.cornerRadius = 6
+        } else {
+            config.image = UIImage(systemName: "bookmark", withConfiguration: imageConfig)
+            config.baseForegroundColor = .secondaryLabel
+            config.background.backgroundColor = .clear
+            filteringBookmarkButton.layer.borderWidth = 0
+        }
+
+        filteringBookmarkButton.configuration = config
     }
     
     func reloadRow(withId id: Int) {
