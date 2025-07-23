@@ -132,9 +132,23 @@ extension CoverLetterTableViewController {
     }
     
     /// 섹션 타이틀 주입
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        let filter = filterOrder[section]
-        return filter.title
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = .backgroundBlue
+
+        let label = UILabel()
+        label.text = filterOrder[section].title
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        headerView.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 18),
+            label.centerYAnchor.constraint(equalTo: headerView.centerYAnchor)
+        ])
+
+        return headerView
     }
     
     /// 테이블 선택 처리
