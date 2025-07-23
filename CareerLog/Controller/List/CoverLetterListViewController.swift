@@ -85,8 +85,12 @@ class CoverLetterListViewController: UIViewController {
     private func setupNavigationBar() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.setSearchFieldBackgroundImage(UIImage(), for: .normal)
+        searchController.searchBar.searchTextField.backgroundColor = .backgroundBlueDark
+        searchController.searchBar.searchTextField.layer.cornerRadius = 8
+        searchController.searchBar.searchTextField.layer.masksToBounds = true
+        searchController.searchBar.searchTextField.font = .systemFont(ofSize: 15)
         searchController.searchBar.placeholder = "회사명, 제목, 내용으로 검색"
-        searchController.searchBar.searchTextField.backgroundColor = .systemBackground
         navigationItem.searchController = searchController
         definesPresentationContext = true
         
