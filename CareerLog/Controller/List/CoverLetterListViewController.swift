@@ -22,6 +22,7 @@ class CoverLetterListViewController: UIViewController {
     let tableVC: CoverLetterTableViewController
     
     private lazy var filteringBookmarkButton: UIButton = UIButton()
+    private lazy var filteringTagButton: UIButton = UIButton()
     private let buttonVStack = UIStackView()
     private lazy var addButton: UIButton = makePlainButton(title: "자기소개서 추가하기", image: UIImage(named: "plus"), tintColor: .tintColor)
     private lazy var loginButton: UIButton = makePlainButton(title: "로그인", image: nil, tintColor: .tintColor)
@@ -35,12 +36,16 @@ class CoverLetterListViewController: UIViewController {
         self.tableVC.mainTableDelegate = self
     }
     
+    private let tagScrollView = UIScrollView()
+    private let tagStackView = UIStackView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTopButtons()
         setupBottomButtons()
         setupLayout()
         setupNavigationBar()
+        configure()
         presenter.viewDidLoad()
     }
     
@@ -52,16 +57,62 @@ class CoverLetterListViewController: UIViewController {
         }
     }
     
+    private func configure() {
+        updateFilteringBookmarkButton(isFiltering: false)
+        updateTagButton(tag: "")
+        updateSelectedTags([])
+    }
+    
     private func setupTopButtons() {
+        // 북마크 필터 버튼
         filteringBookmarkButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(filteringBookmarkButton)
-        updateFilteringBookmarkButton(isFiltering: false)
-
         filteringBookmarkButton.addTarget(self, action: #selector(filteringBookmarkButtonTapped), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
-            filteringBookmarkButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 6),
+            filteringBookmarkButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
             filteringBookmarkButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            filteringBookmarkButton.heightAnchor.constraint(equalToConstant: 28),
+        ])
+        
+        // 태그 필터 버튼
+        filteringTagButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filteringTagButton)
+        filteringTagButton.addTarget(self, action: #selector(filteringTagButtonTapped), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            filteringTagButton.centerYAnchor.constraint(equalTo: filteringBookmarkButton.centerYAnchor),
+            filteringTagButton.leadingAnchor.constraint(equalTo: filteringBookmarkButton.trailingAnchor, constant: 8),
+            filteringTagButton.heightAnchor.constraint(equalTo: filteringBookmarkButton.heightAnchor)
+        ])
+        
+        // 태그 스크롤 뷰
+        tagScrollView.translatesAutoresizingMaskIntoConstraints = false
+        tagScrollView.showsHorizontalScrollIndicator = false
+        tagScrollView.alwaysBounceHorizontal = true
+        tagScrollView.isScrollEnabled = true
+        view.addSubview(tagScrollView)
+        
+        tagStackView.translatesAutoresizingMaskIntoConstraints = false
+        tagStackView.axis = .horizontal
+        tagStackView.spacing = 6
+        tagStackView.alignment = .fill
+        tagStackView.distribution = .fill
+        tagScrollView.addSubview(tagStackView)
+        
+        tagScrollViewHeightConstraint = tagScrollView.heightAnchor.constraint(equalToConstant: 36)
+        tagScrollViewHeightConstraint.isActive = true
+        
+        NSLayoutConstraint.activate([
+            tagScrollView.centerYAnchor.constraint(equalTo: filteringBookmarkButton.centerYAnchor),
+            tagScrollView.leadingAnchor.constraint(equalTo: filteringTagButton.trailingAnchor, constant: 2),
+            tagScrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            
+            tagStackView.topAnchor.constraint(equalTo: tagScrollView.topAnchor),
+            tagStackView.bottomAnchor.constraint(equalTo: tagScrollView.bottomAnchor),
+            tagStackView.leadingAnchor.constraint(equalTo: tagScrollView.leadingAnchor),
+            tagStackView.trailingAnchor.constraint(equalTo: tagScrollView.trailingAnchor),
+            tagStackView.heightAnchor.constraint(equalTo: tagScrollView.heightAnchor)
         ])
     }
     
@@ -95,11 +146,12 @@ class CoverLetterListViewController: UIViewController {
         tableVC.view.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            tableVC.view.topAnchor.constraint(equalTo: filteringBookmarkButton.bottomAnchor, constant: 6),
+            tableVC.view.topAnchor.constraint(equalTo: filteringBookmarkButton.bottomAnchor, constant: 12),
             tableVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableVC.view.bottomAnchor.constraint(equalTo: buttonVStack.topAnchor, constant: -8),
+            tableVC.view.bottomAnchor.constraint(equalTo: buttonVStack.topAnchor, constant: -8)
         ])
+        
         tableVC.didMove(toParent: self)
     }
     
@@ -144,6 +196,48 @@ class CoverLetterListViewController: UIViewController {
     
     @objc func filteringBookmarkButtonTapped() {
         presenter.didTapFilteringBookmarkButton()
+    }
+    
+    @objc func filteringTagButtonTapped() {
+        presenter.didTapFilteringTagButton()
+    }
+    
+    func showTagFilter(tags: [String], selected: Set<String>) {
+        let tagVC = TagFilterBottomSheetViewController()
+        tagVC.configure(tags: tags, selectedTags: selected) // 상태 주입
+        
+        tagVC.onApply = { [weak self] selectedTags in
+            self?.presenter.didSelectTags(Array(selectedTags))
+        }
+
+        if let sheet = tagVC.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+
+        present(tagVC, animated: true)
+    }
+    private var tagScrollViewHeightConstraint: NSLayoutConstraint!
+
+    func updateSelectedTags(_ tags: [String]) {
+        tagStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        tagScrollView.isHidden = tags.isEmpty
+        tagScrollViewHeightConstraint.constant = tags.isEmpty ? 0 : 28
+
+        for tag in tags {
+            let label = PaddingLabel()
+            label.text = tag
+            label.font = .systemFont(ofSize: 12, weight: .medium)
+            label.textColor = .secondaryLabel
+            label.backgroundColor = .systemGray6
+            label.layer.cornerRadius = 12
+            label.layer.masksToBounds = true
+            label.layer.borderWidth = 1
+            label.layer.borderColor = UIColor.systemGray4.cgColor
+            
+            tagStackView.addArrangedSubview(label)
+        }
     }
     
 //    func updateListUI(with items: [CoverLetter], selectedId: Int?, isAutoSelection: Bool) {

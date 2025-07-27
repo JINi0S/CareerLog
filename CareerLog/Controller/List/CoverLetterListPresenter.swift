@@ -29,8 +29,10 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
     private var isFilteringBookmark: Bool = false
     private var searchText: String = ""
     var selectedFilter: SidebarFilter = .all
+    private(set) var selectedTags: Set<String> = []
     private var selectedId: Int?
     private(set) var allItems: [CoverLetter] = []
+    private(set) var allTags: [CoverLetterTag] = []
     
     init(view: CoverLetterListViewProtocol, service: CoverLetterServiceProtocol) {
         self.view = view
@@ -100,6 +102,14 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
         updateFilteredList(selectionSource: .userInitiated)
     }
     
+    func didTapFilteringTagButton() {
+        let tagNames = allTags.map { $0.name }
+        let selectedTagNames = selectedTags
+        print(allTags, tagNames, selectedTagNames)
+
+        view?.showTagFilter(tags: tagNames, selected: selectedTagNames)
+    }
+    
     func didToggleBookmark(for item: CoverLetter) {
         guard let index = allItems.firstIndex(where: { $0.id == item.id }) else { return }
         allItems[index].isBookmarked.toggle() // 상태 업데이트
@@ -157,6 +167,12 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
         self.selectedFilter = filter
         updateFilteredList(selectionSource: .userInitiated)
     }
+       
+    func didSelectTags(_ tags: [String]) {
+        self.selectedTags = Set(tags) // presenter가 태그 상태 관리
+        view?.updateSelectedTags(tags)
+        updateFilteredList(selectionSource: .none)
+    }
     
     func didUpdateCoverLetter(_ item: CoverLetter) {
         // 로컬 상태 업데이트
@@ -207,6 +223,16 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
         if isFilteringBookmark {
             filtered = filtered.filter { $0.isBookmarked }
         }
+        
+        if !selectedTags.isEmpty {
+            filtered = filtered.filter { coverLetter in
+                let tagNames = Set(
+                    coverLetter.contents.flatMap { $0.tag }.map { $0.name }
+                )
+                return !selectedTags.isDisjoint(with: tagNames)
+            }
+        }
+        
         guard !searchText.isEmpty else { return filtered }
         
         return filtered.filter { coverLetter in
@@ -241,10 +267,20 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
                 items[index].contents = contents
             }
             self.allItems = items
+            self.allTags = extractTags(from: items)
             updateFilteredList(selectionSource: .systemAuto)
         } catch {
             view?.showError(message: "자기소개서 로딩 실패")
         }
+    }
+    
+    private func extractTags(from coverLetters: [CoverLetter]) -> [CoverLetterTag] {
+        let all = coverLetters
+            .flatMap { $0.contents }
+            .flatMap { $0.tag }
+
+        let unique = Array(Set(all))
+        return unique.sorted { $0.name < $1.name }
     }
     
     private func insertNewCoverLetter() async {

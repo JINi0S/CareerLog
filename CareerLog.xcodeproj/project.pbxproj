@@ -58,6 +58,7 @@
 		60C5A08A2E09E66E00628F4E /* DatePickerToggleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5A0892E09E66E00628F4E /* DatePickerToggleViewController.swift */; };
 		60D42AF82E328F2900102E85 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D42AF72E328F2900102E85 /* KeychainHelper.swift */; };
 		60D42AFA2E363A8400102E85 /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D42AF92E3639D000102E85 /* AuthError.swift */; };
+		60D42AFC2E3675A600102E85 /* TagFilterBottomSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D42AFB2E3675A600102E85 /* TagFilterBottomSheetViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -131,6 +132,7 @@
 		60C5A0892E09E66E00628F4E /* DatePickerToggleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerToggleViewController.swift; sourceTree = "<group>"; };
 		60D42AF72E328F2900102E85 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		60D42AF92E3639D000102E85 /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
+		60D42AFB2E3675A600102E85 /* TagFilterBottomSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagFilterBottomSheetViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -337,6 +339,7 @@
 				6034C3772DE35E8C002EE37A /* CoverLetterListViewController.swift */,
 				60103F602E26455500BBB9B8 /* CoverLetterListViewProtocol.swift */,
 				60103F622E26457A00BBB9B8 /* CoverLetterListPresenter.swift */,
+				60D42AFB2E3675A600102E85 /* TagFilterBottomSheetViewController.swift */,
 				6034C38B2DE37F06002EE37A /* MainTableViewController.swift */,
 			);
 			path = List;
@@ -540,6 +543,7 @@
 				60D42AFA2E363A8400102E85 /* AuthError.swift in Sources */,
 				604B0C0C2E15335F004EC9A8 /* LoginViewController.swift in Sources */,
 				604B0C152E181821004EC9A8 /* CoverLetterUpdateRequest.swift in Sources */,
+				60D42AFC2E3675A600102E85 /* TagFilterBottomSheetViewController.swift in Sources */,
 				604A49382DE76F7F00082744 /* DetailViewController.swift in Sources */,
 				6034C38C2DE37F06002EE37A /* MainTableViewController.swift in Sources */,
 				60D42AF82E328F2900102E85 /* KeychainHelper.swift in Sources */,
