@@ -56,6 +56,8 @@
 		60C5A0852E09611100628F4E /* DetailSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5A0842E09611100628F4E /* DetailSidebarView.swift */; };
 		60C5A0882E0991CD00628F4E /* DetailCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5A0872E0991CD00628F4E /* DetailCollectionViewController.swift */; };
 		60C5A08A2E09E66E00628F4E /* DatePickerToggleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5A0892E09E66E00628F4E /* DatePickerToggleViewController.swift */; };
+		60D42AF82E328F2900102E85 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D42AF72E328F2900102E85 /* KeychainHelper.swift */; };
+		60D42AFA2E363A8400102E85 /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D42AF92E3639D000102E85 /* AuthError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +129,8 @@
 		60C5A0842E09611100628F4E /* DetailSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailSidebarView.swift; sourceTree = "<group>"; };
 		60C5A0872E0991CD00628F4E /* DetailCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailCollectionViewController.swift; sourceTree = "<group>"; };
 		60C5A0892E09E66E00628F4E /* DatePickerToggleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerToggleViewController.swift; sourceTree = "<group>"; };
+		60D42AF72E328F2900102E85 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		60D42AF92E3639D000102E85 /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,10 +247,12 @@
 				6034C3702DE35E8C002EE37A /* CareerLog.xcdatamodeld */,
 				6034C3712DE35E8C002EE37A /* Info.plist */,
 				6034C3732DE35E8C002EE37A /* LaunchScreen.storyboard */,
+				60D42AF62E328F1200102E85 /* Utils */,
 				604B0C062E142226004EC9A8 /* Network */,
 				609169EF2E05E9B400A34D4F /* Controller */,
 				609169F12E05EA4300A34D4F /* View */,
 				609169E32E03FD6700A34D4F /* Model */,
+				60D42AF92E3639D000102E85 /* AuthError.swift */,
 			);
 			path = CareerLog;
 			sourceTree = "<group>";
@@ -356,6 +362,14 @@
 				60C5A0892E09E66E00628F4E /* DatePickerToggleViewController.swift */,
 			);
 			path = Info;
+			sourceTree = "<group>";
+		};
+		60D42AF62E328F1200102E85 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				60D42AF72E328F2900102E85 /* KeychainHelper.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -523,10 +537,12 @@
 				604B0C082E142342004EC9A8 /* CoverLetterService.swift in Sources */,
 				600AF2C42E20F6BE00A83AEB /* MockCoverLetterFactory.swift in Sources */,
 				604B0BFC2E0EAD57004EC9A8 /* TagEditViewController.swift in Sources */,
+				60D42AFA2E363A8400102E85 /* AuthError.swift in Sources */,
 				604B0C0C2E15335F004EC9A8 /* LoginViewController.swift in Sources */,
 				604B0C152E181821004EC9A8 /* CoverLetterUpdateRequest.swift in Sources */,
 				604A49382DE76F7F00082744 /* DetailViewController.swift in Sources */,
 				6034C38C2DE37F06002EE37A /* MainTableViewController.swift in Sources */,
+				60D42AF82E328F2900102E85 /* KeychainHelper.swift in Sources */,
 				604B0C112E181814004EC9A8 /* CoverLetterContentInsertRequest.swift in Sources */,
 				609169E62E04231300A34D4F /* TagCell.swift in Sources */,
 				60C5A08A2E09E66E00628F4E /* DatePickerToggleViewController.swift in Sources */,
@@ -600,7 +616,7 @@
 				CODE_SIGN_ENTITLEMENTS = CareerLog/CareerLog.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = VJUK3HBJ2M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CareerLog/Info.plist;
@@ -615,7 +631,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = leejinhee.CareerLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -638,7 +654,7 @@
 				CODE_SIGN_ENTITLEMENTS = CareerLog/CareerLog.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = VJUK3HBJ2M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CareerLog/Info.plist;
@@ -653,7 +669,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = leejinhee.CareerLog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

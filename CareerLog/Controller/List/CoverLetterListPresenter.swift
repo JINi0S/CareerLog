@@ -13,6 +13,7 @@ protocol CoverLetterListPresenterProtocol {
     func didTapAddButton()
     func didTapLoginButton()
     func didTapLogoutButton()
+    func didTapWithdrawButton()
     func didToggleBookmark(for item: CoverLetter)
     func didDeleteCoverLetter(_ item: CoverLetter)
     func didSelectFilter(_ filter: SidebarFilter)
@@ -71,6 +72,24 @@ final class CoverLetterListPresenter: CoverLetterListPresenterProtocol {
                 self?.view?.showLoginModal(reason: nil)
             case .failure(let error):
                 self?.view?.showError(message: "로그아웃 실패: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func didTapWithdrawButton() {
+        Task {
+            let result = await AuthService.shared.deleteUserInSupabase()
+            
+            await MainActor.run {
+                switch result {
+                case .success:
+                    // 회원탈퇴 성공 - 로그인 화면으로 이동
+                    viewDidLoad()
+                    view?.showLoginModal(reason: "회원탈퇴가 완료되었습니다.")
+                case .failure(let error):
+                    // 회원탈퇴 실패 - 에러 메시지 표시
+                    view?.showError(message: "회원탈퇴 실패: \(error.localizedDescription)")
+                }
             }
         }
     }

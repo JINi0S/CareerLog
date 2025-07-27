@@ -26,6 +26,7 @@ class CoverLetterListViewController: UIViewController {
     private lazy var addButton: UIButton = makePlainButton(title: "자기소개서 추가하기", image: UIImage(named: "plus"), tintColor: .tintColor)
     private lazy var loginButton: UIButton = makePlainButton(title: "로그인", image: nil, tintColor: .tintColor)
     private lazy var logoutButton: UIButton = makePlainButton(title: "로그아웃", image: nil, tintColor: .systemRed)
+    private lazy var withdrawButton: UIButton = makePlainButton(title: "회원탈퇴", image: nil, tintColor: .systemRed)
     private let searchController = UISearchController(searchResultsController: nil)
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -65,7 +66,7 @@ class CoverLetterListViewController: UIViewController {
     }
     
     private func setupBottomButtons() {
-        [addButton, loginButton, logoutButton].forEach {
+        [addButton, loginButton, logoutButton, withdrawButton].forEach {
             buttonVStack.addArrangedSubview($0)
         }
         buttonVStack.axis = .vertical
@@ -76,6 +77,7 @@ class CoverLetterListViewController: UIViewController {
         addButton.addTarget(self, action: #selector(handleAddButtonTap), for: .touchUpInside)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+        withdrawButton.addTarget(self, action: #selector(withdrawButtonTapped), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
             buttonVStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
@@ -134,6 +136,10 @@ class CoverLetterListViewController: UIViewController {
     
     @objc func logoutButtonTapped() {
         presenter.didTapLogoutButton()
+    }
+    
+    @objc func withdrawButtonTapped() {
+        presenter.didTapWithdrawButton()
     }
     
     @objc func filteringBookmarkButtonTapped() {
@@ -238,6 +244,36 @@ extension CoverLetterListViewController: CoverLetterListViewProtocol {
 
         filteringBookmarkButton.configuration = config
     }
+    
+    func updateTagButton(tag: String?) {
+        var config = UIButton.Configuration.plain()
+        config.imagePadding = 4
+        config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var updated = incoming
+            updated.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+            return updated
+        }
+
+        let title = (tag?.isEmpty ?? true) ? "태그 필터" : tag!
+        config.title = title
+
+        if let tag = tag, !tag.isEmpty {
+            config.baseForegroundColor = .accent
+            config.background.backgroundColor = UIColor.accent.withAlphaComponent(0.1)
+            config.background.cornerRadius = 6
+            filteringTagButton.layer.borderWidth = 1
+            filteringTagButton.layer.borderColor = UIColor.accent.cgColor
+            filteringTagButton.layer.cornerRadius = 6
+        } else {
+            config.baseForegroundColor = .secondaryLabel
+            config.background.backgroundColor = .clear
+            filteringTagButton.layer.borderWidth = 0
+        }
+
+        filteringTagButton.configuration = config
+    }
+    
     
     func reloadRow(withId id: Int) {
         DispatchQueue.main.async {
