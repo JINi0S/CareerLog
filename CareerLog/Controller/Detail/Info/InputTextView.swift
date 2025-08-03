@@ -7,15 +7,13 @@
 
 import UIKit
 
-final class MemoInputView: UIView, UITextViewDelegate {
+final class InputTextView: UIView, UITextViewDelegate {
     let textView = UITextView()
     var onTextChanged: ((String) -> Void)?
-    let container = UIStackView()
 
-    init(text: String) {
+    init() {
         super.init(frame: .zero)
         setupViews()
-        configure(text: text)
     }
     
     private func setupViews() {
@@ -43,6 +41,12 @@ final class MemoInputView: UIView, UITextViewDelegate {
     
     func configure(text: String) {
         textView.text = text
+    }
+    
+    func update(text: String) {
+        if textView.text != text {
+            textView.text = text
+        }
     }
     
     func textViewDidChange(_ textView: UITextView) {

@@ -94,7 +94,7 @@ final class DetailCollectionViewController: UICollectionViewController {
     
     private func presentTagEditView() {
         let editVC = TagEditViewController()
-        editVC.options = self.tagOptions
+        editVC.tagOptions = self.tagOptions
         editVC.onUpdate = { [weak self] newOptions in
             self?.tagOptions = newOptions
             self?.collectionView?.reloadData()
@@ -231,14 +231,7 @@ extension DetailCollectionViewController {
                 }
             }
             header.onDelete = { [weak self] in
-                if self?.item?.contents.count ?? 0 > 1 {
-                    if let item = self?.item {
-                        self?.onDeleteContent?(item.id, item.contents[indexPath.section].id)
-                        self?.item?.contents.remove(at: indexPath.section)
-                        self?.collectionView?.reloadData()
-                    }
-                }
-                // TODO: 1개인 경우는 삭제 안된다고 알럿 띄우기 or 1개인 경우에는 버튼 없애기
+                self?.handleContentDeletion(at: indexPath.section)
             }
             return header
         } else if kind == UICollectionView.elementKindSectionFooter {
@@ -296,6 +289,61 @@ extension DetailCollectionViewController {
         }
         
         return UICollectionReusableView()
+    }
+    
+    private func handleContentDeletion(at section: Int) {
+        guard let item, section < item.contents.count, item.contents.count > 1 else {
+            showCannotDeleteAlert()
+            return
+        }
+        
+        let contentToDelete = item.contents[section]
+        
+        // 삭제 확인 Alert 표시
+        showDeleteConfirmationAlert { [weak self] in
+            self?.performContentDeletion(itemId: item.id, contentId: contentToDelete.id, at: section)
+        }
+    }
+    
+    private func showDeleteConfirmationAlert(completion: @escaping () -> Void) {
+        let alert = UIAlertController(
+            title: "자기소개서 삭제",
+            message: "정말 삭제하시겠습니까?\n답변도 같이 삭제됩니다.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { _ in
+            completion()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    
+    private func showCannotDeleteAlert() {
+        let alert = UIAlertController(
+            title: "삭제할 수 없음",
+            message: "최소 하나의 질문은 남겨두어야 합니다.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+    
+    private func performContentDeletion(itemId: Int, contentId: Int, at section: Int) {
+        // 1. 콜백 호출
+        onDeleteContent?(itemId, contentId)
+        
+        // 2. 데이터 모델 업데이트
+        item?.contents.remove(at: section)
+        
+        // 3. UI 업데이트
+        collectionView?.performBatchUpdates({
+            collectionView?.deleteSections(IndexSet(integer: section))
+        }, completion: { _ in
+            
+        })
     }
 }
 

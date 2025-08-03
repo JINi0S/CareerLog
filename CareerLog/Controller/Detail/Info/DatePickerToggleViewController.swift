@@ -47,7 +47,6 @@ class DatePickerToggleView: UIView {
    override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
-        updateToggleButtonStyle(isSelected: false, title: defaultTitle)
     }
     
     required init?(coder: NSCoder) {
@@ -61,16 +60,22 @@ class DatePickerToggleView: UIView {
                    maximumDate: Date? = nil,
                    buttonTitle: String) {
         defaultTitle = buttonTitle
-
-        if let date = initialDate {
-            datePicker.date = date
-            let formattedDate = dateFormatter.string(from: date)
-            updateToggleButtonStyle(isSelected: toggleButton.isSelected, title: formattedDate)
-        } else {
-            updateToggleButtonStyle(isSelected: toggleButton.isSelected, title: buttonTitle)
-        }
+        updateTitle(with: initialDate)
+        datePicker.date = initialDate ?? Date()
         datePicker.minimumDate = minimumDate
         datePicker.maximumDate = maximumDate
+    }
+    
+    /// 외부에서 날짜 갱신 요청 시 사용
+    func updateDate(_ date: Date) {
+        datePicker.date = date
+        updateTitle(with: date)
+    }
+    
+    /// 외부에서 텍스트만 갱신하고 싶을 때
+    func updateTitle(with date: Date?) {
+        let title = date.map { dateFormatter.string(from: $0) } ?? defaultTitle
+        updateToggleButtonStyle(isSelected: toggleButton.isSelected, title: title)
     }
     
     // MARK: - Setup
@@ -108,7 +113,6 @@ class DatePickerToggleView: UIView {
         onDateChanged?(sender.date)
         togglePicker()
         updateToggleButtonStyle(isSelected: toggleButton.isSelected, title: formattedDate)
-
     }
 
     // MARK: - Style Update

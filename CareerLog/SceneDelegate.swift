@@ -45,7 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let sidebar = sidebarVC.viewControllers.first as? SidebarViewController {
             sidebar.delegate = mainVC
             let selectedFilter = (sidebar.sidebarFilters.first ?? nil) ?? .all
-            mainVC.didSelectFilter(selectedFilter)
+            mainVC.filterSidebar(sidebar, didSelect: selectedFilter)
         }
         
         detailVC.delegate = mainVC

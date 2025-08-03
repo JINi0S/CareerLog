@@ -7,89 +7,78 @@
 
 import UIKit
 
-final class QuestionHeaderView: UICollectionReusableView, UITextViewDelegate {
+final class QuestionHeaderView: UICollectionReusableView {
+    // MARK: - Constants
+    private enum Layout {
+        static let leadingMargin: CGFloat = 4
+        static let trailingMargin: CGFloat = -2
+        static let stackSpacing: CGFloat = 8
+        static let fontSize: CGFloat = 16
+    }
+    
+    // MARK: - Static Properties
     static let reuseIdentifier = "QuestionHeaderView"
     
-    var onChangeTitle: ((String) -> ())?
-    var onDelete: (() -> ())?
+    // MARK: - Public Properties
+    var onChangeTitle: ((String) -> Void)?
+    var onDelete: (() -> Void)?
     
-    private let textView: UITextView = {
+    // MARK: - UI Components
+    private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.tintColor = .accent
-        textView.font = .systemFont(ofSize: 16, weight: .semibold)
-        textView.borderStyle = .none
+        textView.font = .systemFont(ofSize: Layout.fontSize, weight: .semibold)
         textView.isScrollEnabled = false
+        textView.delegate = self
         return textView
     }()
     
-    private let etcButton: UIButton = {
+    private lazy var etcButton: UIButton = {
         let button = UIButton()
         button.tintColor = .systemGray
-        button.setImage(.init(systemName: "ellipsis"), for: .normal)
+        button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.showsMenuAsPrimaryAction = true
+        button.menu = createDeleteMenu()
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
         return button
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        textView.delegate = self
-        etcButton.addTarget(self, action: #selector(showMenu), for: .touchUpInside)
-        etcButton.setContentHuggingPriority(.required, for: .horizontal)
-        etcButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
-        
-        // 스택 뷰 구성
-        let questionHStack = UIStackView(arrangedSubviews: [textView, etcButton])
-        questionHStack.axis = .horizontal
-        questionHStack.alignment = .top
-        questionHStack.spacing = 8
-        
-        // 뷰에 추가
-        [questionHStack].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            addSubview($0)
-        }
-        
-        NSLayoutConstraint.activate([
-            questionHStack.topAnchor.constraint(equalTo: topAnchor),
-            questionHStack.bottomAnchor.constraint(equalTo: bottomAnchor),
-            questionHStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            questionHStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -2),
-        ])
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        invalidateIntrinsicContentSize()
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        self.onChangeTitle?(textView.text)
+        setupViews()
     }
     
     func configure(with content: CoverLetterContent) {
         textView.text = content.question
     }
     
-    @objc private func showMenu() {
-        let action = UIAction(title: " 자기소개서 삭제", handler: { [weak self] _ in
-            self?.deleteQuestion()
-        }
-        )
-        let tagMenu =  UIMenu(title: "", options: .displayInline, preferredElementSize: .large, children: [action])
-        etcButton.menu = UIMenu(title: "", children: [tagMenu])
+    private func setupViews() {
+        let questionHStack = UIStackView(arrangedSubviews: [textView, etcButton])
+        questionHStack.axis = .horizontal
+        questionHStack.alignment = .top
+        questionHStack.spacing = Layout.stackSpacing
+        questionHStack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(questionHStack)
+        
+        NSLayoutConstraint.activate([
+            questionHStack.topAnchor.constraint(equalTo: topAnchor),
+            questionHStack.bottomAnchor.constraint(equalTo: bottomAnchor),
+            questionHStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Layout.leadingMargin),
+            questionHStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: Layout.trailingMargin),
+        ])
     }
     
-    private func deleteQuestion() {
-        guard let parentVC = parentViewController else { return }
-        
-        let alert = UIAlertController(title: "자기소개서 삭제", message: "정말 삭제하시겠습니까?\n답변도 같이 삭제됩니다.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { [weak self] _ in
-            print(("DELETE"))
+    private func createDeleteMenu() -> UIMenu {
+        let deleteAction = UIAction(
+            title: "자기소개서 삭제",
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive
+        ) { [weak self] _ in
             self?.onDelete?()
-        })
+        }
         
-        parentVC.present(alert, animated: true)
+        return UIMenu(options: .displayInline, children: [deleteAction])
     }
     
     required init?(coder: NSCoder) {
@@ -97,14 +86,12 @@ final class QuestionHeaderView: UICollectionReusableView, UITextViewDelegate {
     }
 }
 
-
-extension UIView {
-    var parentViewController: UIViewController? {
-        var responder: UIResponder? = self
-        while let r = responder {
-            if let vc = r as? UIViewController { return vc }
-            responder = r.next
-        }
-        return nil
+extension QuestionHeaderView: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        invalidateIntrinsicContentSize()
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        self.onChangeTitle?(textView.text)
     }
 }

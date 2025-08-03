@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol SidebarViewDelegate: AnyObject {
+protocol DetailSidebarViewDelegate: AnyObject {
     func sidebarView(_ view: DetailSidebarView, didChangeState state: CoverLetterState)
     func sidebarView(_ view: DetailSidebarView, didUpdateCompany company: String)
     func sidebarView(_ view: DetailSidebarView, didUpdateJob job: String)
@@ -19,12 +19,12 @@ protocol SidebarViewDelegate: AnyObject {
 }
 
 class DetailSidebarView: UIView {
-    private let segmentControl = UISegmentedControl(items: CoverLetterState.allCases.map { $0.koreanName })
+    private let stateSegmentedControl = UISegmentedControl(items: CoverLetterState.allCases.map { $0.koreanName })
     
-    private let companyTextField = MemoInputView(text: "")
-    private let jobTextField = MemoInputView(text: "")
-    private let urlTextField = MemoInputView(text: "")
-    private let memoTextField = MemoInputView(text: "")
+    private let companyInputView = InputTextView()
+    private let jobInputView = InputTextView()
+    private let urlInputView = InputTextView()
+    private let memoInputView = InputTextView()
     
     private let companyLabel: UILabel = DetailSidebarView.makeLabel(text: "회사")
     private let jobLabel: UILabel = DetailSidebarView.makeLabel(text: "직무")
@@ -36,7 +36,17 @@ class DetailSidebarView: UIView {
     private let dueDatePickerToggleView = DatePickerToggleView()
     private let includesWhitespaceCheckBox = CheckBox()
     
-    var delegate: SidebarViewDelegate?
+    private let urlButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "safari"), for: .normal)
+        button.tintColor = .secondaryLabel
+        return button
+    }()
+    
+    private let inputStack = UIStackView()
+    private var isUpdating = false
+
+    var delegate: DetailSidebarViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -49,115 +59,126 @@ class DetailSidebarView: UIView {
     }
     
     func configure(with item: CoverLetter?) {
-        segmentControl.selectedSegmentIndex = CoverLetterState.allCases.firstIndex(of: item?.state ?? .unwrite) ?? 0
-        companyTextField.configure(text: item?.company ?? "")
-        jobTextField.configure(text: item?.jobPosition ?? "")
-        urlTextField.configure(text: item?.applyUrl ?? "")
-        memoTextField.configure(text: item?.memo ?? "")
+        isUpdating = false
+        stateSegmentedControl.selectedSegmentIndex = CoverLetterState.allCases.firstIndex(of: item?.state ?? .unwrite) ?? 0
+        companyInputView.configure(text: item?.company ?? "")
+        jobInputView.configure(text: item?.jobPosition ?? "")
+        urlInputView.configure(text: item?.applyUrl ?? "")
+        memoInputView.configure(text: item?.memo ?? "")
         includesWhitespaceCheckBox.isChecked = item?.includesWhitespace ?? true
         dueDatePickerToggleView.configure(initialDate: item?.dueDate, buttonTitle: "마감일 설정")
     }
     
-    private let dummySpacerView = UIView()
-
-    private let urlButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "safari"), for: .normal)
-        button.tintColor = .secondaryLabel
-        return button
-    }()
-
+    func update(with item: CoverLetter?) {
+        isUpdating = true
+        stateSegmentedControl.selectedSegmentIndex = CoverLetterState.allCases.firstIndex(of: item?.state ?? .unwrite) ?? 0
+        companyInputView.update(text: item?.company ?? "")
+        jobInputView.update(text: item?.jobPosition ?? "")
+        urlInputView.update(text: item?.applyUrl ?? "")
+        memoInputView.update(text: item?.memo ?? "")
+        includesWhitespaceCheckBox.isChecked = item?.includesWhitespace ?? true
+        if let date = item?.dueDate {
+            dueDatePickerToggleView.updateDate(date)
+        }
+        isUpdating = false
+    }
+    
     private func setupLayout() {
         backgroundColor = UIColor.systemGray6
+        setupSegmentedControl()
+        setupInputStack()
+        setupConstraints()
+    }
+    
+    private func setupSegmentedControl() {
+        addSubview(stateSegmentedControl)
+        stateSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    private func setupInputStack() {
+        let companyHStack = makeInputRow(label: companyLabel, inputView: companyInputView, alignment: .top)
+        let jobHStack = makeInputRow(label: jobLabel, inputView: jobInputView, alignment: .firstBaseline)
+        let urlHStack = makeInputRow(label: urlLabel, inputView: urlInputView, alignment: .firstBaseline)
+        let memoHStack = makeInputRow(label: memoLabel, inputView: memoInputView, alignment: .top)
+        let dueDateHStack = makeInputRow(label: dueDateLabel, inputView: dueDatePickerToggleView, alignment: .top)
+        let whitespaceCheckBoxHStack = makeInputRow(label: whitespaceCheckBoxLabel, inputView: includesWhitespaceCheckBox, alignment: .top, distribution: .equalSpacing)
         
-        let companyHStack = makeHStack(label: companyLabel, inputView: companyTextField, alignment: .top)
-        let jobHStack = makeHStack(label: jobLabel, inputView: jobTextField, alignment: .firstBaseline)
-        let urlHStack = makeHStack(label: urlLabel, inputView: urlTextField, alignment: .firstBaseline)
-        let memoHStack = makeHStack(label: memoLabel, inputView: memoTextField, alignment: .top)
-        let dueDateHStack = makeHStack(label: dueDateLabel, inputView: dueDatePickerToggleView, alignment: .top)
-        let whitespaceCheckBoxHStack = makeHStack(label: whitespaceCheckBoxLabel, inputView: includesWhitespaceCheckBox, alignment: .top, distribution: .equalSpacing)
-       
-        dummySpacerView.translatesAutoresizingMaskIntoConstraints = false
-        dummySpacerView.backgroundColor = .clear
-        
-        dummySpacerView.setContentHuggingPriority(.defaultLow, for: .vertical) // 늘어나도 됨
-        dummySpacerView.setContentCompressionResistancePriority(.required, for: .vertical) // 찌그러지지는 않음
-        
+        // Safari 버튼 삽입
         urlHStack.addSubview(urlButton)
         urlButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             urlButton.trailingAnchor.constraint(equalTo: urlHStack.trailingAnchor, constant: -8),
-            urlButton.centerYAnchor.constraint(equalTo: urlTextField.centerYAnchor),
+            urlButton.centerYAnchor.constraint(equalTo: urlInputView.centerYAnchor),
             urlButton.widthAnchor.constraint(equalToConstant: 20),
             urlButton.heightAnchor.constraint(equalToConstant: 20)
         ])
         
-        let verticalStack = UIStackView(arrangedSubviews: [
-            companyHStack,
-            jobHStack,
-            urlHStack,
-            memoHStack,
-            whitespaceCheckBoxHStack,
-            dueDateHStack
-        ])
-        verticalStack.axis = .vertical
-        verticalStack.spacing = 14
-        verticalStack.alignment = .fill
-
-        [segmentControl, verticalStack].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            addSubview($0)
+        // 입력 필드 세로 스택
+        [companyHStack,
+         jobHStack,
+         urlHStack,
+         memoHStack,
+         whitespaceCheckBoxHStack,
+         dueDateHStack
+        ].forEach {
+            inputStack.addArrangedSubview($0)
         }
-        
+        inputStack.axis = .vertical
+        inputStack.spacing = 14
+        inputStack.alignment = .fill
+        inputStack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(inputStack)
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
-            segmentControl.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
-            segmentControl.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 12),
-            segmentControl.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            stateSegmentedControl.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
+            stateSegmentedControl.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            stateSegmentedControl.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -12),
             
-            verticalStack.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 14),
-            verticalStack.leadingAnchor.constraint(equalTo: segmentControl.leadingAnchor, constant: 4),
-            verticalStack.trailingAnchor.constraint(equalTo: segmentControl.trailingAnchor, constant: -4),
+            inputStack.topAnchor.constraint(equalTo: stateSegmentedControl.bottomAnchor, constant: 14),
+            inputStack.leadingAnchor.constraint(equalTo: stateSegmentedControl.leadingAnchor, constant: 4),
+            inputStack.trailingAnchor.constraint(equalTo: stateSegmentedControl.trailingAnchor, constant: -4)
         ])
     }
     
     private func setupActions() {
-        segmentControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        stateSegmentedControl.addTarget(self, action: #selector(stateSegmentChanged), for: .valueChanged)
         urlButton.addTarget(self, action: #selector(urlButtonTapped), for: .touchUpInside)
-        includesWhitespaceCheckBox.addTarget(self, action: #selector(checkBoxChanged), for: .touchUpInside)
+        includesWhitespaceCheckBox.addTarget(self, action: #selector(whitespaceCheckBoxTapped), for: .touchUpInside)
         
-        companyTextField.onTextChanged = { [weak self] text in
-            guard let self else { return }
+        companyInputView.onTextChanged = { [weak self] text in
+            guard let self, !self.isUpdating else { return }
             delegate?.sidebarView(self, didUpdateCompany: text)
         }
-        jobTextField.onTextChanged = { [weak self] text in
-            guard let self else { return }
+        jobInputView.onTextChanged = { [weak self] text in
+            guard let self, !self.isUpdating else { return }
             delegate?.sidebarView(self, didUpdateJob: text)
         }
-        urlTextField.onTextChanged = { [weak self] text in
-            guard let self else { return }
+        urlInputView.onTextChanged = { [weak self] text in
+            guard let self, !self.isUpdating else { return }
             delegate?.sidebarView(self, didUpdateUrl: text)
         }
-        memoTextField.onTextChanged = { [weak self] text in
-            guard let self else { return }
+        memoInputView.onTextChanged = { [weak self] text in
+            guard let self, !self.isUpdating else { return }
             delegate?.sidebarView(self, didUpdateMemo: text)
         }
-        
         dueDatePickerToggleView.onDateChanged = { [weak self] date in
             guard let self else { return }
             delegate?.sidebarView(self, didUpdateDueDate: date)
         }
     }
     
-    @objc private func segmentChanged() {
-        delegate?.sidebarView(self, didChangeState: CoverLetterState.allCases[segmentControl.selectedSegmentIndex])
+    @objc private func stateSegmentChanged() {
+        delegate?.sidebarView(self, didChangeState: CoverLetterState.allCases[stateSegmentedControl.selectedSegmentIndex])
     }
     
-    @objc private func checkBoxChanged() {
+    @objc private func whitespaceCheckBoxTapped() {
         delegate?.sidebarView(self, didUpdateWhitespace: includesWhitespaceCheckBox.isChecked)
     }
     
     @objc private func urlButtonTapped() {
-        delegate?.sidebarView(self, didTapUrlButton: urlTextField.textView.text)
+        delegate?.sidebarView(self, didTapUrlButton: urlInputView.textView.text)
     }
     
     // MARK: - Helper UI Methods
@@ -179,48 +200,12 @@ class DetailSidebarView: UIView {
         return label
     }
     
-    private func makeHStack(label: UILabel, inputView: UIView, alignment: UIStackView.Alignment, distribution: UIStackView.Distribution = .fill) -> UIStackView {
+    private func makeInputRow(label: UILabel, inputView: UIView, alignment: UIStackView.Alignment, distribution: UIStackView.Distribution = .fill) -> UIStackView {
         let stack = UIStackView(arrangedSubviews: [label, inputView])
         stack.spacing = 12
         stack.axis = .horizontal
         stack.alignment = alignment
         stack.distribution = distribution
         return stack
-    }
-}
-
-class CheckBox: UIButton {
-    
-    // 체크 여부 상태
-    var isChecked: Bool = false {
-        didSet {
-            updateImage()
-        }
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-    
-    private func setup() {
-        addTarget(self, action: #selector(toggleCheck), for: .touchUpInside)
-        updateImage()
-    }
-    
-    @objc private func toggleCheck() {
-        isChecked.toggle()
-    }
-    
-    private func updateImage() {
-        let imageName = isChecked ? "checkmark.square.fill" : "square.fill"
-        let imageConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
-        setImage(UIImage(systemName: imageName, withConfiguration: imageConfig), for: .normal)
-        tintColor = isChecked ? .accent : .backgroundDark
     }
 }

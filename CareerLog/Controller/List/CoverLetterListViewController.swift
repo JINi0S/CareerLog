@@ -17,13 +17,14 @@ enum SelectionSource {
     case none              // 선택 없이 UI만 업데이트
 }
 
+
 class CoverLetterListViewController: UIViewController {
     var presenter: CoverLetterListPresenter!
     let tableVC: CoverLetterTableViewController
     
-    private lazy var filteringBookmarkButton: UIButton = UIButton()
-    private lazy var filteringTagButton: UIButton = UIButton()
-    private let buttonVStack = UIStackView()
+    private lazy var bookmarkFilterButton: UIButton = UIButton()
+    private lazy var tagFilterButton: UIButton = UIButton()
+    private let footerButtonStackView = UIStackView()
     private lazy var addButton: UIButton = makePlainButton(title: "자기소개서 추가하기", image: UIImage(named: "plus"), tintColor: .tintColor)
     private lazy var loginButton: UIButton = makePlainButton(title: "로그인", image: nil, tintColor: .tintColor)
     private lazy var logoutButton: UIButton = makePlainButton(title: "로그아웃", image: nil, tintColor: .systemRed)
@@ -65,25 +66,25 @@ class CoverLetterListViewController: UIViewController {
     
     private func setupTopButtons() {
         // 북마크 필터 버튼
-        filteringBookmarkButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(filteringBookmarkButton)
-        filteringBookmarkButton.addTarget(self, action: #selector(filteringBookmarkButtonTapped), for: .touchUpInside)
+        bookmarkFilterButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bookmarkFilterButton)
+        bookmarkFilterButton.addTarget(self, action: #selector(filteringBookmarkButtonTapped), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
-            filteringBookmarkButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
-            filteringBookmarkButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            filteringBookmarkButton.heightAnchor.constraint(equalToConstant: 28),
+            bookmarkFilterButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
+            bookmarkFilterButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            bookmarkFilterButton.heightAnchor.constraint(equalToConstant: 28),
         ])
         
         // 태그 필터 버튼
-        filteringTagButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(filteringTagButton)
-        filteringTagButton.addTarget(self, action: #selector(filteringTagButtonTapped), for: .touchUpInside)
+        tagFilterButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tagFilterButton)
+        tagFilterButton.addTarget(self, action: #selector(filteringTagButtonTapped), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
-            filteringTagButton.centerYAnchor.constraint(equalTo: filteringBookmarkButton.centerYAnchor),
-            filteringTagButton.leadingAnchor.constraint(equalTo: filteringBookmarkButton.trailingAnchor, constant: 8),
-            filteringTagButton.heightAnchor.constraint(equalTo: filteringBookmarkButton.heightAnchor)
+            tagFilterButton.centerYAnchor.constraint(equalTo: bookmarkFilterButton.centerYAnchor),
+            tagFilterButton.leadingAnchor.constraint(equalTo: bookmarkFilterButton.trailingAnchor, constant: 8),
+            tagFilterButton.heightAnchor.constraint(equalTo: bookmarkFilterButton.heightAnchor)
         ])
         
         // 태그 스크롤 뷰
@@ -104,8 +105,8 @@ class CoverLetterListViewController: UIViewController {
         tagScrollViewHeightConstraint.isActive = true
         
         NSLayoutConstraint.activate([
-            tagScrollView.centerYAnchor.constraint(equalTo: filteringBookmarkButton.centerYAnchor),
-            tagScrollView.leadingAnchor.constraint(equalTo: filteringTagButton.trailingAnchor, constant: 2),
+            tagScrollView.centerYAnchor.constraint(equalTo: bookmarkFilterButton.centerYAnchor),
+            tagScrollView.leadingAnchor.constraint(equalTo: tagFilterButton.trailingAnchor, constant: 2),
             tagScrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             
             tagStackView.topAnchor.constraint(equalTo: tagScrollView.topAnchor),
@@ -118,12 +119,12 @@ class CoverLetterListViewController: UIViewController {
     
     private func setupBottomButtons() {
         [addButton, loginButton, logoutButton, withdrawButton].forEach {
-            buttonVStack.addArrangedSubview($0)
+            footerButtonStackView.addArrangedSubview($0)
         }
-        buttonVStack.axis = .vertical
-        buttonVStack.spacing = 12
-        buttonVStack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(buttonVStack)
+        footerButtonStackView.axis = .vertical
+        footerButtonStackView.spacing = 12
+        footerButtonStackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(footerButtonStackView)
 
         addButton.addTarget(self, action: #selector(handleAddButtonTap), for: .touchUpInside)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
@@ -131,9 +132,9 @@ class CoverLetterListViewController: UIViewController {
         withdrawButton.addTarget(self, action: #selector(withdrawButtonTapped), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
-            buttonVStack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            buttonVStack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            buttonVStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
+            footerButtonStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            footerButtonStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            footerButtonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
         ])
     }
     
@@ -146,10 +147,10 @@ class CoverLetterListViewController: UIViewController {
         tableVC.view.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            tableVC.view.topAnchor.constraint(equalTo: filteringBookmarkButton.bottomAnchor, constant: 12),
+            tableVC.view.topAnchor.constraint(equalTo: bookmarkFilterButton.bottomAnchor, constant: 12),
             tableVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableVC.view.bottomAnchor.constraint(equalTo: buttonVStack.topAnchor, constant: -8)
+            tableVC.view.bottomAnchor.constraint(equalTo: footerButtonStackView.topAnchor, constant: -8)
         ])
         
         tableVC.didMove(toParent: self)
@@ -203,10 +204,10 @@ class CoverLetterListViewController: UIViewController {
     }
     
     func showTagFilter(tags: [String], selected: Set<String>) {
-        let tagVC = TagFilterBottomSheetViewController()
+        let tagVC = TagFilterModalViewController()
         tagVC.configure(tags: tags, selectedTags: selected) // 상태 주입
         
-        tagVC.onApply = { [weak self] selectedTags in
+        tagVC.onApplySelection = { [weak self] selectedTags in
             self?.presenter.didSelectTags(Array(selectedTags))
         }
 
@@ -240,20 +241,6 @@ class CoverLetterListViewController: UIViewController {
         }
     }
     
-//    func updateListUI(with items: [CoverLetter], selectedId: Int?, isAutoSelection: Bool) {
-//        tableVC.configure(items: items, filter: presenter.selectedFilter)
-//        
-//        if isAutoSelection {
-//            DispatchQueue.main.async {
-//                if let id = selectedId,  items.contains(where: { $0.id == id })  {
-//                    self.tableVC.selectAndNotifyItem(withId: id)
-//                } else {
-//                    self.tableVC.selectFirstIfNeeded()
-//                }
-//            }
-//        }
-//    }
-//    
     func updateListUI(with items: [CoverLetter], selectedId: Int?, selectionSource: SelectionSource) {
         tableVC.configure(items: items, filter: presenter.selectedFilter)
 
@@ -295,12 +282,12 @@ class CoverLetterListViewController: UIViewController {
     }
 }
 
+
 extension CoverLetterListViewController: CoverLetterListViewProtocol {
     func showCoverLetters(_ items: [CoverLetter], selectedId: Int?, selectionSource: SelectionSource) {
         updateListUI(with: items, selectedId: selectedId, selectionSource: selectionSource)
     }
 
-    
     func updateLoginUI(isLoggedIn: Bool) {
         DispatchQueue.main.async {
             self.loginButton.isHidden = isLoggedIn
@@ -326,17 +313,17 @@ extension CoverLetterListViewController: CoverLetterListViewProtocol {
             config.baseForegroundColor = .accent
             config.background.backgroundColor = UIColor.accent.withAlphaComponent(0.1)
             config.background.cornerRadius = 6
-            filteringBookmarkButton.layer.borderWidth = 1
-            filteringBookmarkButton.layer.borderColor = UIColor.accent.cgColor
-            filteringBookmarkButton.layer.cornerRadius = 6
+            bookmarkFilterButton.layer.borderWidth = 1
+            bookmarkFilterButton.layer.borderColor = UIColor.accent.cgColor
+            bookmarkFilterButton.layer.cornerRadius = 6
         } else {
             config.image = UIImage(systemName: "bookmark", withConfiguration: imageConfig)
             config.baseForegroundColor = .secondaryLabel
             config.background.backgroundColor = .clear
-            filteringBookmarkButton.layer.borderWidth = 0
+            bookmarkFilterButton.layer.borderWidth = 0
         }
 
-        filteringBookmarkButton.configuration = config
+        bookmarkFilterButton.configuration = config
     }
     
     func updateTagButton(tag: String?) {
@@ -356,16 +343,16 @@ extension CoverLetterListViewController: CoverLetterListViewProtocol {
             config.baseForegroundColor = .accent
             config.background.backgroundColor = UIColor.accent.withAlphaComponent(0.1)
             config.background.cornerRadius = 6
-            filteringTagButton.layer.borderWidth = 1
-            filteringTagButton.layer.borderColor = UIColor.accent.cgColor
-            filteringTagButton.layer.cornerRadius = 6
+            tagFilterButton.layer.borderWidth = 1
+            tagFilterButton.layer.borderColor = UIColor.accent.cgColor
+            tagFilterButton.layer.cornerRadius = 6
         } else {
             config.baseForegroundColor = .secondaryLabel
             config.background.backgroundColor = .clear
-            filteringTagButton.layer.borderWidth = 0
+            tagFilterButton.layer.borderWidth = 0
         }
 
-        filteringTagButton.configuration = config
+        tagFilterButton.configuration = config
     }
     
     
@@ -401,8 +388,8 @@ extension CoverLetterListViewController: LoginViewControllerDelegate {
     }
 }
 
-extension CoverLetterListViewController: SidebarFilterDelegate {
-    func didSelectFilter(_ filter: SidebarFilter) {
+extension CoverLetterListViewController: FilterSidebarDelegate {
+    func filterSidebar(_ sidebar: SidebarViewController, didSelect filter: SidebarFilter) {
         guard let presenter else {
             print("❗️presenter is nil at the moment of filter selection")
             return
@@ -432,25 +419,5 @@ extension CoverLetterListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let text = searchController.searchBar.text ?? ""
         presenter.updateSearchText(text)
-    }
-}
-
-extension Sequence {
-    func parallelMap<T>(
-        _ transform: @escaping (Element) async throws -> T
-    ) async throws -> [T] {
-        try await withThrowingTaskGroup(of: (Int, T).self) { group in
-            var results = Array<T?>(repeating: nil, count: self.underestimatedCount)
-            for (index, element) in self.enumerated() {
-                group.addTask {
-                    let result = try await transform(element)
-                    return (index, result)
-                }
-            }
-            for try await (index, value) in group {
-                results[index] = value
-            }
-            return results.compactMap { $0 }
-        }
     }
 }

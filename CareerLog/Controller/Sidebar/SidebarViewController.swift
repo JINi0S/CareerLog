@@ -9,19 +9,19 @@ import UIKit
 
 
 // MARK: - Protocol
-protocol SidebarFilterDelegate: AnyObject {
-    func didSelectFilter(_ filter: SidebarFilter)
+protocol FilterSidebarDelegate: AnyObject {
+    func filterSidebar(_ sidebar: SidebarViewController, didSelect filter: SidebarFilter)
 }
 
 class SidebarViewController: UITableViewController {
-    weak var delegate: SidebarFilterDelegate?
-    
+    weak var delegate: FilterSidebarDelegate?
     let sidebarFilters: [SidebarFilter] = [.all] + CoverLetterState.allCases.map { .state($0) }
-    
+    static let reuseIdentifier = "FilterCell"
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGroupedBackground
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: SidebarViewController.reuseIdentifier)
         tableView.tintColor = .systemGray3
         tableView.estimatedRowHeight = 60
     }
@@ -34,7 +34,7 @@ class SidebarViewController: UITableViewController {
         
         // delegate 호출
         let selectedFilter = sidebarFilters[defaultIndexPath.row]
-        delegate?.didSelectFilter(selectedFilter)
+        delegate?.filterSidebar(self, didSelect: selectedFilter)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -42,18 +42,21 @@ class SidebarViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        cell.textLabel?.text = sidebarFilters[indexPath.row].title
-        cell.textLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        cell.backgroundColor = .clear
-        cell.selectionStyle = .gray
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: SidebarViewController.reuseIdentifier, for: indexPath)
+        configureCell(cell, at: indexPath)
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedFilter = sidebarFilters[indexPath.row]
-        delegate?.didSelectFilter(selectedFilter)
+        delegate?.filterSidebar(self, didSelect: selectedFilter)
         splitViewController?.show(.supplementary) // iOS 고려
+    }
+    
+    private func configureCell(_ cell: UITableViewCell, at indexPath: IndexPath) {
+        let filter = sidebarFilters[indexPath.row]
+        cell.textLabel?.text = filter.title
+        cell.textLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        cell.backgroundColor = .clear
     }
 }

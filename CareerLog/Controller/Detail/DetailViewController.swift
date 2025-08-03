@@ -302,9 +302,9 @@ extension DetailViewController: CoverLetterSelectionDelegate {
     }
 }
 
-// MARK: - SidebarViewDelegate
+// MARK: - DetailSidebarViewDelegate
 // TODO: 쓰로틀??! 드바운스 적용
-extension DetailViewController: SidebarViewDelegate {
+extension DetailViewController: DetailSidebarViewDelegate {
     func sidebarView(_ view: DetailSidebarView, didTapUrlButton urlString: String) {
         let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let url = URL(string: trimmed), UIApplication.shared.canOpenURL(url) else {

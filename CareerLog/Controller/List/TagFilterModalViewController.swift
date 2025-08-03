@@ -7,10 +7,10 @@
 
 import UIKit
 
-class TagFilterBottomSheetViewController: UIViewController {
+class TagFilterModalViewController: UIViewController {
     var tags: [String] = []
     var selectedTags: Set<String> = []
-    var onApply: ((Set<String>) -> Void)?
+    var onApplySelection: ((Set<String>) -> Void)?
     
     private let collectionView: UICollectionView = {
         let layout = LeftAlignedCollectionViewFlowLayout()
@@ -19,12 +19,17 @@ class TagFilterBottomSheetViewController: UIViewController {
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     
+    private let applyButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("적용", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-        collectionView.addGestureRecognizer(tapGesture)
+        setupGesture()
     }
     
     func configure(tags: [String], selectedTags: Set<String>) {
@@ -33,42 +38,56 @@ class TagFilterBottomSheetViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 16
-        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(SelectTagCell.self, forCellWithReuseIdentifier: "SelectTagCell")
-        // collectionView.allowsMultipleSelection = true
-        collectionView.allowsSelection = false
-        
+        setupHierarchy()
+        setupConstraints()
+        setupStyles()
+        addTargets()
+    }
+    
+    private func setupHierarchy() {
         view.addSubview(collectionView)
+        view.addSubview(applyButton)
+    }
+    
+    private func setupConstraints() {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -60)
-        ])
-        
-        let applyButton = UIButton(type: .system)
-        applyButton.setTitle("적용", for: .normal)
-        applyButton.addTarget(self, action: #selector(applyTapped), for: .touchUpInside)
-        view.addSubview(applyButton)
-        applyButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -60),
+            
             applyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
             applyButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
     
+    private func setupStyles() {
+        view.backgroundColor = .systemBackground
+        view.layer.cornerRadius = 16
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(TagOptionCell.self, forCellWithReuseIdentifier: TagOptionCell.reuseIdentifier)
+        collectionView.allowsSelection = false
+        // collectionView.allowsMultipleSelection = true
+    }
+    
+    private func setupGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        collectionView.addGestureRecognizer(tapGesture)
+    }
+    
+    private func addTargets() {
+        applyButton.addTarget(self, action: #selector(applyTapped), for: .touchUpInside)
+    }
+    
     @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
         let point = gesture.location(in: collectionView)
         guard let indexPath = collectionView.indexPathForItem(at: point),
-              let cell = collectionView.cellForItem(at: indexPath) as? SelectTagCell else {
+              let cell = collectionView.cellForItem(at: indexPath) as? TagOptionCell else {
             return
         }
         
@@ -86,18 +105,18 @@ class TagFilterBottomSheetViewController: UIViewController {
     }
     
     @objc private func applyTapped() {
-        onApply?(selectedTags)
+        onApplySelection?(selectedTags)
         dismiss(animated: true)
     }
 }
 
-extension TagFilterBottomSheetViewController:  UICollectionViewDelegate, UICollectionViewDataSource  {
+extension TagFilterModalViewController:  UICollectionViewDelegate, UICollectionViewDataSource  {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tags.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SelectTagCell", for: indexPath) as? SelectTagCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TagOptionCell.reuseIdentifier, for: indexPath) as? TagOptionCell else {
             return UICollectionViewCell()
         }
         
@@ -109,7 +128,7 @@ extension TagFilterBottomSheetViewController:  UICollectionViewDelegate, UIColle
     }
 }
 
-extension TagFilterBottomSheetViewController: UICollectionViewDelegateFlowLayout {
+extension TagFilterModalViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -122,7 +141,8 @@ extension TagFilterBottomSheetViewController: UICollectionViewDelegateFlowLayout
 }
 
 
-class SelectTagCell: UICollectionViewCell {
+class TagOptionCell: UICollectionViewCell {
+    static let reuseIdentifier = "TagOptionCell"
     private let label = UILabel()
     
     override init(frame: CGRect) {

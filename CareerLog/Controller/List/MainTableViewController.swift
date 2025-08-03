@@ -59,9 +59,7 @@ class CoverLetterTableViewController: UITableViewController {
             self.filteredItems = [key: list]
             self.filterOrder = [key]
         }
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
+        self.tableView.reloadData()
     }
     
     func selectAndNotifyItem(withId id: Int?, isAutoSelection: Bool) {

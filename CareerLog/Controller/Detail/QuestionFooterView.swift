@@ -19,21 +19,27 @@ final class QuestionFooterView: UICollectionReusableView {
         static let manage = "관리"
     }
     
+    private enum Layout {
+        static let horizontalSpacing: CGFloat = 8
+        static let topInset: CGFloat = 12
+        static let bottomInset: CGFloat = 32
+    }
+    
     // MARK: - Static Properties
     static let reuseIdentifier = "QuestionFooterView"
     
-    // MARK: - Static Properties
+    // MARK: - Public Properties
     var onTapAddButton: (() -> Void)?
     var onTapEditTag: (() -> Void)?
     var onTapAddTag: (() -> Void)?
     var onTagChanged: ((Int, Bool) -> Void)?
     var onCharLimitChanged: ((Int?) -> Void)?
     
-    // MARK: - Internal Properties
+    // MARK: - Private Properties
     private var tagOptions: [CoverLetterTag] = []
-    private var selectedTagIds: Set<Int> = [] // 선택된 태그 id
+    private var selectedTagIds: Set<Int> = []
 
-    // MARK: - Internal Properties
+    // MARK: - UI Components
     private let addAnswerButton: UIButton = {
         var config = UIButton.Configuration.plain()
         config.title = Constants.addAnswerTitle
@@ -106,8 +112,8 @@ final class QuestionFooterView: UICollectionReusableView {
     
     private func setupViews() {
         addAnswerButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
-        countLimitTextField.addTarget(self, action: #selector(onEndEditingCountLimit), for: .editingDidEnd)
-        countLimitTextField.addTarget(self, action: #selector(onBeginCountLimit), for: .editingDidBegin)
+        countLimitTextField.addTarget(self, action: #selector(didEndEditingCountLimit), for: .editingDidEnd)
+        countLimitTextField.addTarget(self, action: #selector(didBeginEditingCountLimit), for: .editingDidBegin)
         
         let spacer = UIView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -115,7 +121,7 @@ final class QuestionFooterView: UICollectionReusableView {
         
         let limitHStack = UIStackView(arrangedSubviews: [addAnswerButton, spacer, countLimitTextField, tagButton])
         limitHStack.axis = .horizontal
-        limitHStack.spacing = 8
+        limitHStack.spacing = Layout.horizontalSpacing
         limitHStack.distribution = .fill
         limitHStack.alignment = .center
         limitHStack.translatesAutoresizingMaskIntoConstraints = false
@@ -123,8 +129,8 @@ final class QuestionFooterView: UICollectionReusableView {
         addSubview(limitHStack)
         
         NSLayoutConstraint.activate([
-            limitHStack.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            limitHStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -32),
+            limitHStack.topAnchor.constraint(equalTo: topAnchor, constant: Layout.topInset),
+            limitHStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: Layout.bottomInset),
             limitHStack.leadingAnchor.constraint(equalTo: leadingAnchor),
             limitHStack.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
@@ -136,7 +142,6 @@ final class QuestionFooterView: UICollectionReusableView {
         self.selectedTagIds = Set(content.tag.map({ $0.id }))
         configureCountLimit(with: content.characterLimit)
         updateMenu()
-        print("Configure QuestFooterView with", tagOptions)
     }
     
     private func configureCountLimit(with characterLimit: Int?) {
@@ -195,7 +200,6 @@ final class QuestionFooterView: UICollectionReusableView {
         tagButton.setNeedsUpdateConfiguration()
     }
     
-    
     private func makeManageTagActions() -> [UIAction] {
         let editAction = UIAction(title: Constants.editTag, image: UIImage(systemName: "slider.horizontal.3"), attributes: [], handler: { [weak self] _ in
             guard let self else { return }
@@ -213,11 +217,11 @@ final class QuestionFooterView: UICollectionReusableView {
         onTapAddButton?()
     }
     
-    @objc private func onBeginCountLimit(_ sender: UITextField) {
+    @objc private func didBeginEditingCountLimit(_ sender: UITextField) {
         countLimitTextField.text = extractNumber(from: countLimitTextField.text)
     }
     
-    @objc private func onEndEditingCountLimit(_ sender: UITextField) {
+    @objc private func didEndEditingCountLimit(_ sender: UITextField) {
         let numberText = extractNumber(from: countLimitTextField.text)
         countLimitTextField.textColor = numberText.isEmpty ? .accent : .label
         countLimitTextField.text = numberText.isEmpty ? Constants.charLimitPlaceholder : "\(numberText)\(Constants.charLimitSuffix)"
